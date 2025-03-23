@@ -3,13 +3,13 @@ from typing import List
 import os
 
 
-ENVIRONMENT = os.environ['FLASK_ENV']
+ENVIRONMENT = os.getenv('FLASK_ENV', 'development')
 
 IS_DEVELOPMENT: bool = ENVIRONMENT == 'development'
 IS_PRODUCTION: bool = ENVIRONMENT == 'production'
 IS_STAGING: bool = ENVIRONMENT == 'staging'
 IS_TEST: bool = ENVIRONMENT == 'test'
-PORT = int(os.environ['PORT'])
+PORT = int(os.getenv('PORT', 9000))
 
 CACHE = {
   'CACHE_TYPE': 'SimpleCache',

@@ -31,7 +31,7 @@ jobs:
     - name: Build Docker Image
       uses: docker/build-push-action@v3
       with:
-        tags: ${{ secrets.DOCKER_USERNAME }}/jada:latest
+        # tags: ${{ secrets.DOCKER_USERNAME }}/jada:latest
         run: './scripts/docker/build.sh'
     
     - name: Log in to Docker Hub
@@ -41,5 +41,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Push Image to Docker Hub
-      # uses: docker/build-push-action@v3
       run: './scripts/docker/push.sh'
