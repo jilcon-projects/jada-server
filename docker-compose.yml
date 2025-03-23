@@ -1,0 +1,19 @@
+services:
+  jada-server:
+    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+    working_dir: /app
+    build: .
+    volumes:
+      - ./.venv:/app/.venv/
+      - .:/app
+    ports:
+      - "$PORT:$PORT"
+    depends_on:
+      - redis
+  
+  echo-service:
+    command: ["echo", "=============== ECHO SERVICE IS RUNNING ============"]
+    build: .
+  
+  redis:
+    image: redis:latest
