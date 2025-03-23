@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_and_push:
-    if: startsWith(github.ref, 'refs/tags/deploy-production-v')
+    # if: startsWith(github.ref, 'refs/tags/deploy-production-v')
     environment: production
     runs-on: ubuntu-latest
     steps:
@@ -21,18 +21,17 @@ jobs:
         echo "PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}" >> .env
         echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
         echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
-        echo "ENVIRONMENT ONE IS ${{ github.job.environment }}"
-        echo "ENVIRONMENT TWO IS ${{ vars.ENVIRONMENT }}"
-        echo "FLASK_ENV=${{ vars.ENVIRONMENT }}" >> .env
         echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
         echo "FLASK_APP=${{ secrets.FLASK_APP }}" >> .env
         echo "APP_NAME=${{ secrets.APP_NAME }}" >> .env
         echo "APP_URL=${{ secrets.APP_URL }}" >> .env
         echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "FLASK_ENV=production" >> .env
 
     - name: Build Docker Image
       uses: docker/build-push-action@v3
       with:
+        tags: ${{ secrets.DOCKER_USERNAME }}/jada:latest
         run: './scripts/docker/build.sh'
     
     - name: Log in to Docker Hub
