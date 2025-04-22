@@ -35,8 +35,8 @@ RUN ./scripts/install.sh
 
 COPY . /app
 
-RUN ./scripts/start.sh
-
 EXPOSE 8080
 
-# CMD ["supervisord", "-c", "/app/supervisord.conf"]
+# RUN ./scripts/start.sh
+
+CMD ["python", "/app/main.py"]
