@@ -61,7 +61,7 @@ jobs:
         with:
           service: ${{ secrets.SERVICE }}
           region: ${{ secrets.REGION }}
-          image: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.APP_NAME }}:latest
+          image: docker.io/${{ secrets.DOCKER_USERNAME }}/${{ secrets.APP_NAME }}:latest
           # env_vars: |
           #   AUTH_URL=${{ secrets.AUTH_URL }}
 
