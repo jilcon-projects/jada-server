@@ -50,7 +50,7 @@ jobs:
       
       - name: Build with docker-compose
         run: |
-          docker-compose build
+          docker compose build
 
       # - name: Build and Push Container
       #   run: './scripts/docker/build.sh'
