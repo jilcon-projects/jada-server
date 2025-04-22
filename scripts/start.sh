@@ -5,7 +5,7 @@ source ./scripts/utils.sh
 
 # Function to start Flask server
 start_server() {
-  jada_echo "${cyan}Starting application server...${clear}"
+  jada_echo "${cyan}Starting Flask server...${clear}"
 
   source .venv/bin/activate
   
@@ -13,14 +13,16 @@ start_server() {
   
   # Update services pids
   services_pids[0]=$!
+
+  is_flask_server_started
+
+  jada_echo "${yellow}Server started successfully!${clear}"
   
-  sleep 1
-  
-  is_server_started
+  are_all_apps_started
   
   # If backend server fails to start after set time, kill server and exit process
   if [ $? -ne 0 ]; then
-    jada_echo "${red}TIMEOUT: Server could not start within $timeout seconds.${clear}"
+    jada_echo "${red}TIMEOUT: All apps could not start within $timeout seconds.${clear}"
     shutdown
   fi
 

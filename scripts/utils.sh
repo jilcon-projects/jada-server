@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Timeout for pinging all services
+# Config for pinging all services
+FLASK_URL='http://localhost:9000'
 start_time=$(date +%s)
-timeout=60
+timeout=30
 
 # Define global variables
 purple='\033[35m'
@@ -22,7 +23,7 @@ services=(
 )
 
 # Check if all services have started within a specified time
-function is_server_started() {
+function are_all_apps_started() {
   for service in "${services[@]}"; do
     while ! ping_service "$service"; do
       current_time=$(date +%s)
@@ -39,10 +40,24 @@ function is_server_started() {
   return 0
 }
 
+is_flask_server_started() {
+  attempts=0
+
+  while ! curl -s "$FLASK_URL" > /dev/null; do
+    attempts=$((attempts+1))
+    
+    if [ "$attempts" -ge "$timeout" ]; then
+      jada_echo "${red}TIMEOUT: Server did not start within $timeout seconds.${clear}"
+      shutdown
+    fi
+    sleep 1
+  done
+}
+
 # Ping started backend server
 function ping_service() {
   local service="${purple}$(echo "$1" | tr '[:lower:]' '[:upper:]')${clear}"
-  local ping_url="http://localhost:9000/${1}/ping"
+  local ping_url="$FLASK_URL/${1}/ping"
 
   jada_echo "${cyan}Pinging ${service} ${cyan}service via ${ping_url}${clear}"
 

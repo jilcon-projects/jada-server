@@ -1,11 +1,11 @@
-# x-environment: &shared-variables
-#   PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
-#   CORS_ORIGIN: $CORS_ORIGIN
-#   FLASK_ENV: $FLASK_ENV
-#   FLASK_APP: $FLASK_APP
-#   APP_NAME: $APP_NAME
-#   APP_URL: $APP_URL
-#   PORT: $PORT
+x-environment: &shared-variables
+  PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
+  CORS_ORIGIN: $CORS_ORIGIN
+  FLASK_ENV: $FLASK_ENV
+  FLASK_APP: $FLASK_APP
+  APP_NAME: $APP_NAME
+  APP_URL: $APP_URL
+  PORT: $PORT
 
 services:
   jada-server:
@@ -20,8 +20,8 @@ services:
       - "$PORT:$PORT"
     depends_on:
       - redis
-    # environment:
-    #   <<: *shared-variables
+    environment:
+      <<: *shared-variables
   
   redis:
     image: redis:latest
