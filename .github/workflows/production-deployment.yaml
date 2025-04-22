@@ -48,12 +48,14 @@ jobs:
           # echo "PORT=${{ secrets.PORT }}" >> .env
           echo "FLASK_ENV=production" >> .env
       
-      - name: Build with docker-compose
-        run: |
-          docker compose build
+      # - name: Build with docker-compose
+      #   run: |
+      #     pip install docker-compose;
+      #     pip install docker==6.1.3;
+      #     docker-compose build;
 
-      # - name: Build and Push Container
-      #   run: './scripts/docker/build.sh'
+      - name: Build and Push Container
+        run: './scripts/docker/build.sh'
       
       
       - name: Deploy to Cloud Run

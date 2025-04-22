@@ -23,4 +23,4 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-docker-compose up jada-server --remove-orphans
+docker compose up jada-server --remove-orphans
