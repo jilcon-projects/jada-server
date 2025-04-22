@@ -24,5 +24,5 @@ if __name__ == '__main__':
     use_reloader=True,
     use_debugger=True,
     application=app,
-    port=8080
+    port=PORT
   )
