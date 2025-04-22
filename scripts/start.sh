@@ -14,7 +14,7 @@ start_server() {
   # Update services pids
   services_pids[0]=$!
 
-  is_flask_server_started
+  # is_flask_server_started
 
   jada_echo "${yellow}Server started successfully!${clear}"
   
