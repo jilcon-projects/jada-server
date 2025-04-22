@@ -16,8 +16,8 @@ services:
       - ./.venv:/app/.venv/
       - .:/app
     ports:
-      # - "$PORT:$PORT"
-      - "8080:8080"
+      - "$PORT:$PORT"
+      # - "8080:8080"
     depends_on:
       - redis
     environment:
