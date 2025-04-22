@@ -47,9 +47,13 @@ jobs:
           echo "APP_URL=${{ secrets.APP_URL }}" >> .env
           # echo "PORT=${{ secrets.PORT }}" >> .env
           echo "FLASK_ENV=production" >> .env
+      
+      - name: Build with docker-compose
+        run: |
+          docker-compose build
 
-      - name: Build and Push Container
-        run: './scripts/docker/build.sh'
+      # - name: Build and Push Container
+      #   run: './scripts/docker/build.sh'
       
       
       - name: Deploy to Cloud Run
