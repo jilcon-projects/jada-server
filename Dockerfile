@@ -31,10 +31,11 @@ COPY ./scripts /app/scripts
 
 RUN apt-get update && apt-get install -y redis-server
 
-# RUN pip install -r requirements.txt
-RUN ./scripts/install.sh && ./scripts/start.sh
+RUN ./scripts/install.sh
 
 COPY . /app
+
+RUN ./scripts/start.sh
 
 EXPOSE 8080
 
