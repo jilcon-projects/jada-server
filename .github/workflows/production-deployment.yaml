@@ -37,17 +37,11 @@ jobs:
           password: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Build and Push Container
-        run: |-
-          docker build -t "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}" ./
-          docker push "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
-        
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v0
+        uses: docker/build-push-action@v3
         with:
-          service: ${{ secrets.SERVICE }}
-          region: ${{ secrets.REGION }}
-          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          tags: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          file: ./Dockerfile
+          push: true
           env_vars: |
             PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
             CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
@@ -55,7 +49,24 @@ jobs:
             APP_NAME=${{ secrets.APP_NAME }}
             APP_URL=${{ secrets.APP_URL }}
             FLASK_ENV=production
-
+      
+      
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ secrets.SERVICE }}
+          region: ${{ secrets.REGION }}
+          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          env_vars: |
+            PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            FLASK_APP=${{ secrets.FLASK_APP }}
+            APP_NAME=${{ secrets.APP_NAME }}
+            APP_URL=${{ secrets.APP_URL }}
+            FLASK_ENV=production
+      
+      
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
 
