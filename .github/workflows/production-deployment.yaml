@@ -20,14 +20,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+      
+      
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v0'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           token_format: 'access_token'
-        
+      
+      
       - name: Docker Auth
         id: docker-auth
         uses: 'docker/login-action@v1'
@@ -35,6 +37,7 @@ jobs:
           registry: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
           username: _json_key
           password: ${{ secrets.GCP_CREDENTIALS }}
+      
       
       - name: Create .env File
         run: |
@@ -48,14 +51,13 @@ jobs:
           # echo "PORT=${{ secrets.PORT }}" >> .env
           echo "FLASK_ENV=production" >> .env
       
-      # - name: Build with docker-compose
-      #   run: |
-      #     pip install docker-compose;
-      #     pip install docker==6.1.3;
-      #     docker-compose build;
 
-      - name: Build and Push Container
+      - name: Build Image
         run: './scripts/docker/build.sh'
+      
+      
+      - name: Push Image to Docker Hub
+        run: './scripts/docker/push.sh'
       
       
       - name: Deploy to Cloud Run
