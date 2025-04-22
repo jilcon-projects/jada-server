@@ -17,12 +17,12 @@ ARG APP_URL
 ARG PORT
 
 # Set environment variables
-ENV CORS_ORIGIN=${CORS_ORIGIN}
-ENV FLASK_ENV=${FLASK_ENV}
-ENV FLASK_APP=${FLASK_APP}
-ENV APP_NAME=${APP_NAME}
-ENV APP_URL=${APP_URL}
-ENV PORT=${PORT}
+ENV CORS_ORIGIN=$CORS_ORIGIN
+ENV FLASK_ENV=$FLASK_ENV
+ENV FLASK_APP=$FLASK_APP
+ENV APP_NAME=$APP_NAME
+ENV APP_URL=$APP_URL
+ENV PORT=$PORT
 
 WORKDIR /app
 
@@ -34,8 +34,6 @@ RUN apt-get update && apt-get install -y redis-server
 RUN ./scripts/install.sh
 
 COPY . /app
-
-# EXPOSE 8080
 
 # RUN ./scripts/start.sh
 
