@@ -9,7 +9,7 @@ x-environment: &shared-variables
 services:
   jada-server:
     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    image: astongemmy/jada:latest
+    # image: astongemmy/jada:latest
     working_dir: /app
     build: .
     volumes:
