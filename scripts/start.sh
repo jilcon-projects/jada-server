@@ -12,7 +12,7 @@ start_server() {
   python main.py &
   
   # Update services pids
-  services_pids[0]=$!
+  # services_pids[0]=$!
 
   # is_flask_server_started
 
@@ -37,4 +37,4 @@ trap "shutdown" SIGINT
 start_server
 
 # Wait for services
-wait $services_pids
+# wait $services_pids

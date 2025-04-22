@@ -1,4 +1,4 @@
-name: Production - CI/CD
+name: Production - Google Cloud Run
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - deploy-production-v**
 
 jobs:
-  build_and_push:
+  deploy:
     # if: startsWith(github.ref, 'refs/tags/deploy-production-v')
     environment: production
     runs-on: ubuntu-latest
@@ -18,21 +18,16 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Create .env File
-        run: |
-          echo "PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}" >> .env
-          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
-          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
-          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
-          echo "FLASK_APP=${{ secrets.FLASK_APP }}" >> .env
-          echo "APP_NAME=${{ secrets.APP_NAME }}" >> .env
-          echo "APP_URL=${{ secrets.APP_URL }}" >> .env
-          echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "FLASK_ENV=production" >> .env
-      
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          token_format: 'access_token'
+        
       - name: Docker Auth
         id: docker-auth
         uses: 'docker/login-action@v1'
@@ -42,24 +37,10 @@ jobs:
           password: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Build and Push Container
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
-          file: ./Dockerfile
-          build-args: |
-            PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
-            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-            FLASK_APP=${{ secrets.FLASK_APP }}
-            APP_NAME=${{ secrets.APP_NAME }}
-            APP_URL=${{ secrets.APP_URL }}
-            PORT=${{ secrets.PORT }}
-            FLASK_ENV=production
-          # run: |-
-          #   docker build -t "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}" ./
-          #   docker push "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
-          
-      
+        run: |-
+          docker build -t "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}" ./
+          docker push "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
+        
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v0
@@ -67,7 +48,20 @@ jobs:
           service: ${{ secrets.SERVICE }}
           region: ${{ secrets.REGION }}
           image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          env_vars: |
+            PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            FLASK_APP=${{ secrets.FLASK_APP }}
+            APP_NAME=${{ secrets.APP_NAME }}
+            APP_URL=${{ secrets.APP_URL }}
+            FLASK_ENV=production
 
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
+
+
+
+      
       # - name: Build Docker Image
       #   uses: docker/build-push-action@v3
       #   with:
@@ -105,5 +99,5 @@ jobs:
       #       APP_URL=${{ secrets.APP_URL }}
       #       FLASK_ENV=production
 
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+      # - name: Show Output
+      #   run: echo ${{ steps.deploy.outputs.url }}
