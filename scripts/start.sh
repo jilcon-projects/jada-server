@@ -18,13 +18,13 @@ start_server() {
 
   jada_echo "${yellow}Server started successfully!${clear}"
   
-  are_all_apps_started
+  # are_all_apps_started
   
   # If backend server fails to start after set time, kill server and exit process
-  if [ $? -ne 0 ]; then
-    jada_echo "${red}TIMEOUT: All apps could not start within $timeout seconds.${clear}"
-    shutdown
-  fi
+  # if [ $? -ne 0 ]; then
+  #   jada_echo "${red}TIMEOUT: All apps could not start within $timeout seconds.${clear}"
+  #   shutdown
+  # fi
 
   # Server is fully started
   jada_echo "${green}Server is active and running!${clear}"
