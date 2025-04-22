@@ -9,14 +9,14 @@ x-environment: &shared-variables
 services:
   jada-server:
     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    # image: astongemmy/jada:latest
+    image: astongemmy/jada:latest
     working_dir: /app
     build: .
     volumes:
       - ./.venv:/app/.venv/
       - .:/app
     ports:
-      - "9000:9000"
+      - "9000:8080"
     depends_on:
       - redis
     environment:
