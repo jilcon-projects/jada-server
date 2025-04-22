@@ -35,21 +35,21 @@ jobs:
           registry: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
           username: _json_key
           password: ${{ secrets.GCP_CREDENTIALS }}
+      
+      - name: Create .env File
+        run: |
+          echo "PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}" >> .env
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
+          echo "FLASK_APP=${{ secrets.FLASK_APP }}" >> .env
+          echo "APP_NAME=${{ secrets.APP_NAME }}" >> .env
+          echo "APP_URL=${{ secrets.APP_URL }}" >> .env
+          # echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "FLASK_ENV=production" >> .env
 
       - name: Build and Push Container
-        uses: docker/build-push-action@v3
-        with:
-          run: './scripts/docker/build.sh'
-          # tags: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
-          # file: .
-          # push: true
-          env_vars: |
-            PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
-            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-            FLASK_APP=${{ secrets.FLASK_APP }}
-            APP_NAME=${{ secrets.APP_NAME }}
-            APP_URL=${{ secrets.APP_URL }}
-            FLASK_ENV=production
+        run: './scripts/docker/build.sh'
       
       
       - name: Deploy to Cloud Run
@@ -58,7 +58,7 @@ jobs:
         with:
           service: ${{ secrets.SERVICE }}
           region: ${{ secrets.REGION }}
-          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          image: docker.io/astongemmy/jada:latest
           env_vars: |
             PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
             CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
