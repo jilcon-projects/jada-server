@@ -51,7 +51,7 @@ def after_request(response):
 # API service status pinger
 @app.route('/api/ping', methods=['GET'])
 def ping():
-  return ApiResponse.ok(message='Server is running OKay!')
+  return ApiResponse.ok(message='Server is running OK!')
 
 
 # Error handlers for all expected errors
