@@ -62,8 +62,14 @@ jobs:
           service: ${{ secrets.SERVICE }}
           region: ${{ secrets.REGION }}
           image: docker.io/${{ secrets.DOCKER_USERNAME }}/${{ secrets.APP_NAME }}:latest
-          # env_vars: |
-          #   AUTH_URL=${{ secrets.AUTH_URL }}
+          env_vars: |
+            PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            FLASK_APP=${{ secrets.FLASK_APP }}
+            APP_NAME=${{ secrets.APP_NAME }}
+            APP_URL=${{ secrets.APP_URL }}
+            PORT=${{ secrets.PORT }}
+            FLASK_ENV=production
 
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
