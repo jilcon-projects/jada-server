@@ -1,27 +1,35 @@
-x-environment: &shared-variables
-  PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
-  CORS_ORIGIN: $CORS_ORIGIN
-  FLASK_ENV: $FLASK_ENV
-  FLASK_APP: $FLASK_APP
-  APP_NAME: $APP_NAME
-  APP_URL: $APP_URL
-  PORT: $PORT
+# x-environment: &shared-variables
+#   PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
+#   CORS_ORIGIN: $CORS_ORIGIN
+#   FLASK_ENV: $FLASK_ENV
+#   FLASK_APP: $FLASK_APP
+#   APP_NAME: $APP_NAME
+#   APP_URL: $APP_URL
+#   PORT: $PORT
+
+# services:
+#   jada-server:
+#     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+#     image: astongemmy/jada:latest
+#     working_dir: /app
+#     build: .
+#     volumes:
+#       - ./.venv:/app/.venv/
+#       - .:/app
+#     ports:
+#       - "$PORT:$PORT"
+#     depends_on:
+#       - redis
+#     environment:
+#       <<: *shared-variables
+  
+#   redis:
+#     image: redis:latest
+
 
 services:
   jada-server:
-    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    image: astongemmy/jada:latest
-    working_dir: /app
     build: .
-    volumes:
-      - ./.venv:/app/.venv/
-      - .:/app
+    command: gunicorn --bind=0.0.0.0:8080 main.wsgi:application -k uvicorn.workers.UvicornWorker --access-logfile '-' --error-logfile '-'
     ports:
-      - "$PORT:$PORT"
-    depends_on:
-      - redis
-    environment:
-      <<: *shared-variables
-  
-  redis:
-    image: redis:latest
+      - "8080:8080"
