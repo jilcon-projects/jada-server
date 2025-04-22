@@ -39,9 +39,10 @@ jobs:
       - name: Build and Push Container
         uses: docker/build-push-action@v3
         with:
-          tags: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
-          file: ./Dockerfile
-          push: true
+          run: './scripts/docker/build.sh'
+          # tags: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          # file: .
+          # push: true
           env_vars: |
             PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
             CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
