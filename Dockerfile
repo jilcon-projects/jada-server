@@ -35,7 +35,7 @@ RUN ./scripts/install.sh
 
 COPY . /app
 
-EXPOSE 8080
+# EXPOSE 8080
 
 # RUN ./scripts/start.sh
 
