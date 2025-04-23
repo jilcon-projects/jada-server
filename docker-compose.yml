@@ -8,7 +8,8 @@ x-environment: &shared-variables
 
 services:
   jada-server:
-    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+    entrypoint: ["gunicorn", "--bind", ":$PORT", "--workers", "1", "--threads", "8", "--timeout", "0", "main:app"]
+    # entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
     # image: astongemmy/jada:latest
     working_dir: /app
     build: .
