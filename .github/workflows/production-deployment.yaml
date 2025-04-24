@@ -66,8 +66,7 @@ jobs:
       - name: 'Build and Push Container'
         run: |-
           DOCKER_TAG="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
-          ./scripts/docker/build.sh &&
-          docker push "${DOCKER_TAG}"
+          ./scripts/docker/build.sh && docker push "${DOCKER_TAG}"
         
       
       
