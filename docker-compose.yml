@@ -8,6 +8,7 @@ x-environment: &shared-variables
   APP_NAME: $APP_NAME
   SERVICE: $SERVICE
   APP_URL: $APP_URL
+  REGION: $REGION
   SHA: $SHA
 
 services:
