@@ -51,9 +51,10 @@ jobs:
           echo "APP_NAME=${{ secrets.APP_NAME }}" >> .env
           echo "APP_URL=${{ secrets.APP_URL }}" >> .env
           echo "SERVICE=${{ secrets.SERVICE }}" >> .env
+          echo "REGION=${{ secrets.REGION }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "FLASK_ENV=production" >> .env
           echo "SHA=${{ github.sha }}" >> .env
+          echo "FLASK_ENV=production" >> .env
       
       
       # - name: 'Build and Push Container'
