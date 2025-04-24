@@ -45,17 +45,27 @@ jobs:
           echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
           echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
           echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
+          echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
+          echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
           echo "FLASK_APP=${{ secrets.FLASK_APP }}" >> .env
           echo "APP_NAME=${{ secrets.APP_NAME }}" >> .env
           echo "APP_URL=${{ secrets.APP_URL }}" >> .env
+          echo "SERVICE=${{ secrets.SERVICE }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "FLASK_ENV=production" >> .env
+          echo "SHA=${{ github.sha }} >> .env
       
+      
+      # - name: 'Build and Push Container'
+      #   run: |-
+      #     DOCKER_TAG="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
+      #     docker build --tag "${DOCKER_TAG}" .
+      #     docker push "${DOCKER_TAG}"
       
       - name: 'Build and Push Container'
         run: |-
           DOCKER_TAG="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" .
+          docker compose build jada-server --tag "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
         
       
@@ -84,7 +94,6 @@ jobs:
           image: '${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ secrets.SERVICE }}:${{ github.sha }}'
           service: ${{ secrets.SERVICE }}
           region: ${{ secrets.REGION }}
-          # source: ./
           env_vars: |
             PYTHONDONTWRITEBYTECODE=${{ secrets.PYTHONDONTWRITEBYTECODE }}
             CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
