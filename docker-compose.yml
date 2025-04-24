@@ -1,32 +1,32 @@
-x-environment: &shared-variables
-  PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
-  CORS_ORIGIN: $CORS_ORIGIN
-  REPOSITORY: $REPOSITORY
-  PROJECT_ID: $PROJECT_ID
-  FLASK_ENV: $FLASK_ENV
-  FLASK_APP: $FLASK_APP
-  APP_NAME: $APP_NAME
-  SERVICE: $SERVICE
-  APP_URL: $APP_URL
-  REGION: $REGION
-  SHA: $SHA
+# x-environment: &shared-variables
+#   PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
+#   CORS_ORIGIN: $CORS_ORIGIN
+#   REPOSITORY: $REPOSITORY
+#   PROJECT_ID: $PROJECT_ID
+#   FLASK_ENV: $FLASK_ENV
+#   FLASK_APP: $FLASK_APP
+#   APP_NAME: $APP_NAME
+#   SERVICE: $SERVICE
+#   APP_URL: $APP_URL
+#   REGION: $REGION
+#   SHA: $SHA
 
-services:
-  jada-server:
-    image: "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$SHA"
-    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    # image: astongemmy/jada:latest
-    working_dir: /app
-    build: .
-    volumes:
-      - ./.venv:/app/.venv/
-      - .:/app
-    ports:
-      - "8080:8080"
-    depends_on:
-      - redis
-    environment:
-      <<: *shared-variables
+# services:
+#   jada-server:
+#     image: "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$SHA"
+#     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+#     # image: astongemmy/jada:latest
+#     working_dir: /app
+#     build: .
+#     volumes:
+#       - ./.venv:/app/.venv/
+#       - .:/app
+#     ports:
+#       - "8080:8080"
+#     depends_on:
+#       - redis
+#     environment:
+#       <<: *shared-variables
   
-  redis:
-    image: redis:latest
+#   redis:
+#     image: redis:latest
