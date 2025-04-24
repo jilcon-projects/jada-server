@@ -9,7 +9,7 @@ start_server() {
 
   source .venv/bin/activate
   
-  python main.py &
+  python main.py
   
   # Update services pids
   # services_pids[0]=$!
