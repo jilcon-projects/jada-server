@@ -1,9 +1,7 @@
 #!/bin/bash
 
-pip install docker-compose;
+docker compose pull
 
-pip install docker==6.1.3;
+# docker compose build jada-server
 
-# docker-compose pull
-
-docker-compose run --entrypoint=./scripts/install.sh jada-server --remove-orphans
+docker compose build --entrypoint=./scripts/install.sh jada-server --remove-orphans
