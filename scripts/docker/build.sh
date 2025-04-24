@@ -2,4 +2,4 @@
 
 docker compose pull
 
-docker compose build jada-server --remove-orphans
+docker compose build jada-server
