@@ -53,7 +53,7 @@ jobs:
           echo "SERVICE=${{ secrets.SERVICE }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "FLASK_ENV=production" >> .env
-          echo "SHA=${{ github.sha }} >> .env
+          echo "SHA=${{ github.sha }}" >> .env
       
       
       # - name: 'Build and Push Container'
