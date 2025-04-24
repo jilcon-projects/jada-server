@@ -15,7 +15,7 @@ x-environment: &shared-variables
 services:
   jada-server:
     image: "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$SHA"
-    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+    entrypoint: ['./scripts/start.sh']
     # image: astongemmy/jada:latest
     working_dir: /app
     build: .
