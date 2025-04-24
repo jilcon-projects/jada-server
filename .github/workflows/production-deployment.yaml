@@ -91,7 +91,7 @@ jobs:
             FLASK_APP=${{ secrets.FLASK_APP }}
             APP_NAME=${{ secrets.APP_NAME }}
             APP_URL=${{ secrets.APP_URL }}
-            PORT=${{ secrets.PORT }}
+            # PORT=${{ secrets.PORT }}
             FLASK_ENV=production
       
       
