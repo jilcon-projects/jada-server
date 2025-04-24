@@ -23,7 +23,7 @@ services:
       - ./.venv:/app/.venv/
       - .:/app
     ports:
-      - "$PORT:8080"
+      - "$PORT:$PORT"
     depends_on:
       - redis
     environment:
