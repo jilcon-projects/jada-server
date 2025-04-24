@@ -9,7 +9,8 @@ IS_DEVELOPMENT: bool = ENVIRONMENT == 'development'
 IS_PRODUCTION: bool = ENVIRONMENT == 'production'
 IS_STAGING: bool = ENVIRONMENT == 'staging'
 IS_TEST: bool = ENVIRONMENT == 'test'
-PORT = int(os.getenv('PORT', 8080))
+# PORT = int(os.getenv('PORT', 8080))
+PORT = 9000
 
 CACHE = {
   'CACHE_TYPE': 'SimpleCache',
