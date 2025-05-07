@@ -15,7 +15,9 @@ jobs:
   build:
     # environment: ${{ contains(github.ref, 'refs/heads/main') && 'production' || (startsWith(github.ref, 'refs/heads/release') && 'release') || 'development' }}
     name: Pre-Deployment Build Job (For Error Check)
+    environment: production
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout into repo
         uses: actions/checkout@v4
