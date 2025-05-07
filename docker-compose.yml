@@ -1,23 +1,16 @@
 x-environment: &shared-variables
   PYTHONDONTWRITEBYTECODE: $PYTHONDONTWRITEBYTECODE
   CORS_ORIGIN: $CORS_ORIGIN
-  REPOSITORY: $REPOSITORY
-  PROJECT_ID: $PROJECT_ID
   FLASK_ENV: $FLASK_ENV
   FLASK_APP: $FLASK_APP
   APP_NAME: $APP_NAME
-  SERVICE: $SERVICE
   APP_URL: $APP_URL
-  REGION: $REGION
   PORT: $PORT
-  SHA: $SHA
 
 services:
   jada-server:
-    entrypoint: ["gunicorn", "--bind", ":$PORT", "--workers", "1", "--threads", "8", "--timeout", "0", "main:app"]
-    image: "$REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE:$SHA"
-    # entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    # image: astongemmy/jada:latest
+    entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
+    image: astongemmy/jada:latest
     working_dir: /app
     build: .
     volumes:

@@ -14,9 +14,6 @@ cyan='\033[36m'
 blue='\033[34m'
 red='\033[31m'
 
-# Services pids
-services_pids=()
-
 # Apps list
 services=(
   'api'
@@ -25,6 +22,7 @@ services=(
 # Check if all services have started within a specified time
 function are_all_apps_started() {
   for service in "${services[@]}"; do
+
     while ! ping_service "$service"; do
       current_time=$(date +%s)
       elapsed_time=$((current_time - start_time))
@@ -40,20 +38,6 @@ function are_all_apps_started() {
   return 0
 }
 
-is_flask_server_started() {
-  attempts=0
-
-  while ! curl -s "$FLASK_URL" > /dev/null; do
-    attempts=$((attempts+1))
-    
-    if [ "$attempts" -ge "$timeout" ]; then
-      jada_echo "${red}TIMEOUT: Server did not start within $timeout seconds.${clear}"
-      shutdown
-    fi
-    sleep 1
-  done
-}
-
 # Ping started backend server
 function ping_service() {
   local service="${purple}$(echo "$1" | tr '[:lower:]' '[:upper:]')${clear}"
@@ -63,6 +47,8 @@ function ping_service() {
 
   status_code=$(curl -s -o /dev/null -w "%{http_code}" $ping_url)
   
+  jada_echo "$status_code"
+
   if [ $status_code -eq 200 ]; then
     jada_echo "${green}${service} service started successfully!"
     return 0
@@ -77,22 +63,7 @@ jada_echo() {
   echo -e "${yellow}JADA${clear} --> $@"
 }
 
-# Shutdown/cleanup services
+# Shutdown server
 shutdown() {
-  jada_echo "${cyan}Shutting down gracefully!${clear}"
-
-  for index in ${!services_pids[@]}; do
-    local service="${purple}$(echo "${services[$index]}" | tr '[:lower:]' '[:upper:]')${clear}"
-    local pid=${services_pids[$index]}
-
-    jada_echo "${cyan}Terminating ${service} ${cyan}service with PID: ${pid}...${clear}"
-    
-    if [ -n $pid ] && kill -0 $pid 2>/dev/null; then
-      kill -15 ${pid}
-      wait ${pid} 2>/dev/null || true
-    fi
-  done
-
-  jada_echo "${green}Shutdown completed!${clear}"
-  exit 0
+  docker compose down
 }

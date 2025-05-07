@@ -1,8 +1,10 @@
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
 from datetime import datetime, timezone, timedelta
 from jwt.exceptions import DecodeError
 from config.cache import AuthToken
 from google.oauth2 import id_token
-from Crypto.Cipher import AES
 from config import config
 from flask import request
 import logging
@@ -43,8 +45,12 @@ class Auth(object):
 
   @staticmethod
   def create_user_key(user_email):
-    cipher = AES.new(AUTH_SECRET_KEY, AES.MODE_ECB)
-    encrypted = cipher.encrypt(Auth.pad(user_email).encode())
+    cipher = Cipher(algorithms.AES(AUTH_SECRET_KEY), modes.ECB(), backend=default_backend())
+    padder = padding.PKCS7(128).padder()
+    encryptor = cipher.encryptor()
+
+    padded_data = padder.update(user_email.encode()) + padder.finalize()
+    encrypted = encryptor.update(padded_data) + encryptor.finalize()
     return base64.urlsafe_b64encode(encrypted).decode()
   
 
@@ -70,9 +76,13 @@ class Auth(object):
 
   @staticmethod
   def decrypt_user_key(user_key):
-    cipher = AES.new(AUTH_SECRET_KEY, AES.MODE_ECB)
-    decrypted = cipher.decrypt(base64.b64decode(user_key)).decode()
-    return decrypted.rstrip('\x00')
+    cipher = Cipher(algorithms.AES(AUTH_SECRET_KEY), modes.ECB(), backend=default_backend())
+    unpadder = padding.PKCS7(128).unpadder()
+    decryptor = cipher.decryptor()
+
+    decrypted_data = decryptor.update(base64.b64decode(user_key)) + decryptor.finalize()
+    unpadded = unpadder.update(decrypted_data) + unpadder.finalize()
+    return unpadded.decode()
   
 
   def create_token(user):
@@ -97,8 +107,3 @@ class Auth(object):
     AuthToken.set(user_key, token, ex=AUTH_TOKEN_DURATION)
 
     return payload, user_key
-  
-
-  @staticmethod
-  def pad(data):
-    return data + (16 - len(data) % 16) * chr(16 - len(data) % 16)
