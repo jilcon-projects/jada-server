@@ -30,7 +30,7 @@ jobs:
           echo "APP_URL=${{ secrets.APP_URL }}" >> .env
           echo "PYTHONDONTWRITEBYTECODE=1" >> .env
           echo "FLASK_ENV=production" >> .env
-          echo "PORT=9000" .env
+          echo "PORT=9000" >> .env
 
       - name: Build Dockerized App
         run: ./scripts/docker/build.sh
