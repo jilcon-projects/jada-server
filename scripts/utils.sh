@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Config for pinging all services
-FLASK_URL='http://localhost:9000'
+# Config for pinging all server apps.
+FLASK_URL='http://localhost:6000'
 start_time=$(date +%s)
 timeout=30
 
@@ -15,15 +15,27 @@ blue='\033[34m'
 red='\033[31m'
 
 # Apps list
-services=(
+apps=(
   'api'
 )
 
-# Check if all services have started within a specified time
-function are_all_apps_started() {
-  for service in "${services[@]}"; do
+# Check if all server apps have started successfully.
+function check_server_status() {
+  jada_echo "${green}Pinging all apps for activity status...${clear}"
 
-    while ! ping_service "$service"; do
+  if ping_server_apps; then
+    jada_echo "${green}All apps are up and running!${clear}"
+  else
+    jada_echo "${red}TIMEOUT: All apps could not start within $timeout seconds.${clear}"
+    exit 0
+  fi
+}
+
+# Ping all server apps within a specified time.
+function ping_server_apps() {
+  for app in "${apps[@]}"; do
+
+    while ! ping_app "$app"; do
       current_time=$(date +%s)
       elapsed_time=$((current_time - start_time))
       
@@ -38,32 +50,30 @@ function are_all_apps_started() {
   return 0
 }
 
-# Ping started backend server
-function ping_service() {
-  local service="${purple}$(echo "$1" | tr '[:lower:]' '[:upper:]')${clear}"
-  local ping_url="$FLASK_URL/${1}/ping"
-
-  jada_echo "${cyan}Pinging ${service} ${cyan}service via ${ping_url}${clear}"
-
-  status_code=$(curl -s -o /dev/null -w "%{http_code}" $ping_url)
-  
-  jada_echo "$status_code"
-
-  if [ $status_code -eq 200 ]; then
-    jada_echo "${green}${service} service started successfully!"
-    return 0
-  else
-    jada_echo "${red}Failed to start ${service} ${red}service!${clear}"
-    return 1
-  fi
-}
-
-# Customize all echo messages
-jada_echo() {
+# Customize all echo messages.
+function jada_echo() {
   echo -e "${yellow}JADA${clear} --> $@"
 }
 
-# Shutdown server
-shutdown() {
+# Shutdown server.
+function shutdown() {
   docker compose down
+}
+
+# Ping app.
+function ping_app() {
+  local app="${purple}$(echo "$1" | tr '[:lower:]' '[:upper:]')${clear}"
+  local ping_url="$FLASK_URL/${1}/ping"
+
+  jada_echo "${cyan}Pinging ${app} ${cyan}app via ${ping_url}${clear}"
+
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" $ping_url)
+  
+  if [ $status_code -eq 200 ]; then
+    jada_echo "${green}${app} app started successfully!"
+    return 0
+  else
+    jada_echo "${red}Failed to start ${app} ${red}app!${clear}"
+    return 1
+  fi
 }

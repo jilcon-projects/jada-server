@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker compose pull
+COMPOSE_BAKE=true docker compose pull
 
-docker compose run --entrypoint=./scripts/install.sh jada-server --remove-orphans
+COMPOSE_BAKE=true docker compose run --entrypoint=./scripts/install.sh jada-server --remove-orphans

@@ -10,7 +10,7 @@ x-environment: &shared-variables
 services:
   jada-server:
     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
-    image: astongemmy/jada:latest
+    image: astongemmy/jada-server:latest
     working_dir: /app
     build: .
     volumes:
@@ -18,6 +18,8 @@ services:
       - .:/app
     ports:
       - "$PORT:$PORT"
+    # expose:
+      - $PORT
     depends_on:
       - redis
     environment:

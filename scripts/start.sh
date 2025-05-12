@@ -9,7 +9,8 @@ start_server() {
 
   source .venv/bin/activate
   
-  python -m flask run --host=0.0.0.0 --port=$PORT
+  # python -m flask run --host=0.0.0.0 --port=6000
+  python main.py
 }
 
 # Trap Ctrl+C (SIGINT) to call the shutdown function
