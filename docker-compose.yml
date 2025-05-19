@@ -11,6 +11,7 @@ services:
   jada-server:
     entrypoint: ['./scripts/deps.sh', './scripts/start.sh']
     image: astongemmy/jada-server:latest
+    container_name: jada-server
     working_dir: /app
     build: .
     volumes:
@@ -24,6 +25,15 @@ services:
       - redis
     environment:
       <<: *shared-variables
+    networks:
+      - jada-network
   
   redis:
     image: redis:latest
+    networks:
+      - jada-network
+
+networks:
+  jada-network:
+    name: jada-network
+    external: true

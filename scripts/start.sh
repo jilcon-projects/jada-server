@@ -9,7 +9,7 @@ start_server() {
 
   source .venv/bin/activate
   
-  # python -m flask run --host=0.0.0.0 --port=6000
+  # python -m flask run --host=0.0.0.0 --port=9080
   python main.py
 }
 

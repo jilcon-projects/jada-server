@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Config for pinging all server apps.
-FLASK_URL='http://localhost:6000'
+FLASK_URL='http://localhost:9080'
 start_time=$(date +%s)
 timeout=30
 
@@ -58,6 +58,9 @@ function jada_echo() {
 # Shutdown server.
 function shutdown() {
   docker compose down
+  
+  # Free space
+  docker system prune -af --volumes
 }
 
 # Ping app.
