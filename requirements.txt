@@ -19,13 +19,16 @@ djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 docopt==0.6.2
 drf-spectacular==0.28.0
+gunicorn==23.0.0
 idna==3.10
 inflection==0.5.1
 jsonschema==4.23.0
 jsonschema-specifications==2025.4.1
 kombu==5.5.3
+packaging==25.0
 pipreqs==0.4.13
 prompt_toolkit==3.0.51
+psycopg2-binary==2.9.10
 PyJWT==2.9.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
@@ -41,4 +44,5 @@ uritemplate==4.1.1
 urllib3==2.4.0
 vine==5.1.0
 wcwidth==0.2.13
+whitenoise==6.9.0
 yarg==0.1.10
