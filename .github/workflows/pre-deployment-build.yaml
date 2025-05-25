@@ -3,12 +3,12 @@ name: Pre-Deploy Build
 on:
   push:
     branches:
-      - release-v**
+      - release-v**-0
       - main-0
   pull_request:
     types: [synchronize, reopened, opened]
     branches:
-      - release-v**
+      - release-v**-0
       - main-old
 
 jobs:

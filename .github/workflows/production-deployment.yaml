@@ -3,7 +3,7 @@ name: Production - AWS Cloud Server
 on:
   push:
     branches:
-      - main
+      - main-0
     tags:
       - deploy-production-v**
 
