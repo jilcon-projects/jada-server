@@ -85,5 +85,5 @@ jobs:
 
       - name: Run Docker container
         # run: ./scripts/docker/start.sh
-        run: docker stop jada-server && docker rm jada-server && docker run -d --name jada-server -p 9000:9000 --restart always astongemmy/jada-server:latest
+        run: docker stop jada-server || true && docker rm jada-server || true && docker run -d --name jada-server -p 9000:9000 --restart always astongemmy/jada-server:latest
         shell: /usr/bin/bash -e {0}
