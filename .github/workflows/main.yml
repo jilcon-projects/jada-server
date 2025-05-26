@@ -63,7 +63,7 @@ jobs:
 
       - name: Build Docker image
         # run: sudo docker build -t jada-server-main -f Dockerfile .
-        run: bash ./scripts/docker/build.sh
+        run: ./scripts/docker/build.sh
         shell: /usr/bin/bash -e {0}
 
   deploy_container:
