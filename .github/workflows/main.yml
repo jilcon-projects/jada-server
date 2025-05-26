@@ -84,5 +84,5 @@ jobs:
         shell: /usr/bin/bash -e {0}
 
       - name: Run Docker container
-        run: bash ./scripts/docker/start.sh
+        run: ./scripts/docker/start.sh
         shell: /usr/bin/bash -e {0}
