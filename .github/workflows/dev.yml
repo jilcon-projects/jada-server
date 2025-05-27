@@ -16,13 +16,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      # - name: Write Secrets to .env
-      #   run: |
-      #     # echo "APP_ENV=production" >> .env
-      #     # echo "PORT=8000" >> .env
-      #     # echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-      #     # echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-
+      - name: Write Secrets to .env
+        run: |
+          echo "PORT=8000" >> .env
+          
       - name: Install dependencies
         run: pip install -r requirements.txt
 
