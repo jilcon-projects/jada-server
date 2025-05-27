@@ -28,15 +28,18 @@ jobs:
       - name: Optional Tests
         run: pytest || true  # Remove '|| true' to fail on test errors
 
-      - name: Upload deployment files as artifact
+      - name: Create deployment tar file
+        run: touch deployment-artifacts.tar.gz
+      
+      - name: Bundle deployment files
+        run: |
+          tar --exclude=deployment-artifacts.tar.gz --exclude=__pycache__ --exclude=.git -czf deployment-artifacts.tar.gz .
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-artifacts
-          path: |
-            ./
-            !./.git
-            !./__pycache__
-            !./deployment-artifacts.tar.gz
+          path: deployment-artifacts.tar.gz
 
   build-image:
     name: Build Docker Image
