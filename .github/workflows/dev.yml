@@ -32,8 +32,8 @@ jobs:
           echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> .env
           echo "TWO_FACTOR_ISSUER_NAME=${{ secrets.TWO_FACTOR_ISSUER_NAME }}" >> .env
           echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> .env
-          echo "DEFAULT_FROM_EMAIL =${{ secrets.DEFAULT_FROM_EMAIL  }}" >> .env
-          echo "DEFAULT_FROM_NAME =${{ secrets.DEFAULT_FROM_NAME  }}" >> .env
+          echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL  }}" >> .env
+          echo "DEFAULT_FROM_NAME=${{ secrets.DEFAULT_FROM_NAME  }}" >> .env
 
         working-directory: ${{ github.workspace }}
 
