@@ -33,7 +33,7 @@ jobs:
       
       - name: Bundle deployment files
         run: |
-          tar --exclude=deployment-artifacts.tar.gz --exclude=__pycache__ --exclude=.git -czf deployment-artifacts.tar.gz .
+          tar --exclude=deployment-artifacts.tar.gz --exclude=__pycache__ --exclude=.git -czf deployment-artifacts.tar.gz . .env
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -49,6 +49,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: deployment-artifacts
+
+      - name: Extract artifact
+        run: tar -xvf deployment-artifacts.tar.gz
 
       - name: Set .env file permissions
         run: chmod 600 .env
