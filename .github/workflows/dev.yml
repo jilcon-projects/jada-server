@@ -102,6 +102,18 @@ jobs:
             jada-server-dev
         shell: /usr/bin/bash -e {0}
 
+      - name: Wait for container to be ready
+        run: |
+          for i in {1..10}; do
+            if sudo docker exec jada-server-dev python manage.py check; then
+              echo "Container is ready";
+              break;
+            fi
+            echo "Waiting for container...";
+            sleep 5
+          done
+        shell: /usr/bin/bash -e {0}
+
       - name: Run collectstatic
         run: |
          sudo docker exec jada-server-dev \
