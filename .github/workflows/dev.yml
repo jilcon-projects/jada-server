@@ -1,0 +1,83 @@
+name: Python App Deployment CI
+
+on:
+  push:
+    branches: [ development ]
+
+jobs:
+  prepare-artifacts:
+    name: Prepare Deployment Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # - name: Write Secrets to .env
+      #   run: |
+      #     # echo "APP_ENV=production" >> .env
+      #     # echo "PORT=8000" >> .env
+      #     # echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+      #     # echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Optional Tests
+        run: pytest || true  # Remove '|| true' to fail on test errors
+
+      - name: Upload deployment files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-artifacts
+          path: |
+            ./
+            !./.git
+            !./__pycache__
+            !./deployment-artifacts.tar.gz
+
+  build-image:
+    name: Build Docker Image
+    runs-on: [jada-runner-dev]
+    needs: prepare-artifacts
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: deployment-artifacts
+
+      - name: Set .env file permissions
+        run: chmod 600 .env
+
+      - name: Build Docker image
+        run: sudo docker build -t jada-server-dev .
+        shell: /usr/bin/bash -e {0}
+
+  deploy:
+    name: Deploy Container
+    runs-on: [jada-runner-dev]
+    needs: build-image
+    steps:
+      - name: Stop existing container
+        run: |
+          CONTAINER_NAME=jada-server-dev
+          if [ "$(sudo docker ps -aq -f name=$CONTAINER_NAME)" ]; then
+            echo "Stopping and removing existing container..."
+            sudo docker stop $CONTAINER_NAME || true
+            sudo docker rm $CONTAINER_NAME || true
+          else
+            echo "No container named $CONTAINER_NAME is running."
+          fi
+        shell: /usr/bin/bash -e {0}
+
+      - name: Run Docker container
+        run: |
+          sudo docker run -d \
+            --name jada-server-dev \
+            --env-file .env \
+            -p 8000:8000 \
+            --restart always \
+            jada-server-dev
+        shell: /usr/bin/bash -e {0}
