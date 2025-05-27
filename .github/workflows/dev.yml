@@ -16,9 +16,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Write Secrets to .env
-        run: |
-          echo "PORT=8000" >> .env
+      # - name: Write Secrets to .env
+      #   run: |
+      #     echo "PORT=8000" >> .env
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -45,8 +45,8 @@ jobs:
         with:
           name: deployment-artifacts
 
-      - name: Set .env file permissions
-        run: chmod 600 .env
+      # - name: Set .env file permissions
+      #   run: chmod 600 .env
 
       - name: Build Docker image
         run: sudo docker build -t jada-server-dev .
