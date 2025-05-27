@@ -27,7 +27,7 @@ COPY . /app/
 RUN mkdir -p /app/static /app/media /app/staticfiles
 
 # Collect static files (THIS IS THE KEY FIX)
-RUN python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
+# RUN python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
 
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser
