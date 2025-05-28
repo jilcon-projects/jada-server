@@ -2,7 +2,7 @@ name: Python App development Deployment CI
 
 on:
   push:
-    branches: [ development ]
+    branches: [ development-old ]
 
 jobs:
   prepare-artifacts:
