@@ -1,11 +1,9 @@
 version: '3.8'
 
 services:
+  # Django Web Application     
   web:
-    build:
-      context: .
-      args:
-        - SECRET_KEY=${SECRET_KEY}  # Pass as build argument
+    build: .
     container_name: buildcalc_project_web
     restart: always
     command: >
@@ -15,10 +13,13 @@ services:
       "
     volumes:
       - buildcalc_media_volume:/app/media
+
     ports:
       - "8000:8000"
+    # Load most variables from .env file
     env_file:
       - .env
+    # Override specific variables if needed
     environment:
       - DJANGO_SETTINGS_MODULE=buildcalc.settings.production
     depends_on:
@@ -26,6 +27,7 @@ services:
     networks:
       - buildcalc_network
 
+  # Service to check database connectivity
   db-check:
     image: postgres:16-alpine
     command: >
@@ -42,6 +44,7 @@ services:
       - buildcalc_network
 
 volumes:
+  # buildcalc_static_volume:
   buildcalc_media_volume:
 
 networks:
