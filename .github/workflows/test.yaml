@@ -108,10 +108,4 @@ jobs:
             --restart always \
             jada-server-dev
         shell: /usr/bin/bash -e {0}
-
-      - name: Run collectstatic
-        run: |
-         sudo docker exec jada-server-dev \
-           python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
-        shell: /usr/bin/bash -e {0}
       
