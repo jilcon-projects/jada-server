@@ -1,4 +1,4 @@
-name: Python App development Deployment CI
+name: Python App Docker Compose CI/CD
 
 on:
   push:
@@ -27,37 +27,24 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
           echo "CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}" >> .env
           echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> .env
           echo "TWO_FACTOR_ISSUER_NAME=${{ secrets.TWO_FACTOR_ISSUER_NAME }}" >> .env
           echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> .env
-          echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL  }}" >> .env
-          echo "DEFAULT_FROM_NAME=${{ secrets.DEFAULT_FROM_NAME  }}" >> .env
+          echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }}" >> .env
+          echo "DEFAULT_FROM_NAME=${{ secrets.DEFAULT_FROM_NAME }}" >> .env
 
-        working-directory: ${{ github.workspace }}
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Optional Tests
-        run: pytest || true  # Remove '|| true' to fail on test errors
-
-      - name: Create deployment tar file
-        run: touch deployment-artifacts.tar.gz
-      
-      - name: Bundle deployment files
+      - name: Bundle artifacts
         run: |
-          tar --exclude=deployment-artifacts.tar.gz --exclude=__pycache__ --exclude=.git -czf deployment-artifacts.tar.gz . .env
+          tar --exclude=deployment-artifacts.tar.gz --exclude=.git -czf deployment-artifacts.tar.gz . .env
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: deployment-artifacts
           path: deployment-artifacts.tar.gz
 
-  build-image:
-    name: Build Docker Image
+  deploy:
+    name: Deploy with Docker Compose
     runs-on: [self-hosted, jada-server-dev]
     needs: prepare-artifacts
     steps:
@@ -65,58 +52,32 @@ jobs:
         with:
           name: deployment-artifacts
 
-      - name: Extract artifact
+      - name: Extract deployment bundle
         run: tar -xvf deployment-artifacts.tar.gz
 
       - name: Set .env file permissions
         run: chmod 600 .env
 
-      - name: Build Docker image
-        run: sudo docker build -t jada-server-dev .
-        shell: /usr/bin/bash -e {0}
-
-  deploy:
-    name: Deploy Container
-    runs-on: [self-hosted, jada-server-dev]
-    needs: build-image
-    steps:
-      - name: Stop existing container
+      - name: Stop existing containers
         run: |
-          CONTAINER_NAME=jada-server-dev
-          if [ "$(sudo docker ps -aq -f name=$CONTAINER_NAME)" ]; then
-            echo "Stopping and removing existing container..."
-            sudo docker stop $CONTAINER_NAME || true
-            sudo docker rm $CONTAINER_NAME || true
-          else
-            echo "No container named $CONTAINER_NAME is running."
-          fi
-        shell: /usr/bin/bash -e {0}
+          docker compose -f docker-compose.yml --env-file .env down || true
 
-      - name: Run Docker container
+      - name: Build and start services
         run: |
-          sudo docker run -d \
-            --name jada-server-dev \
-            --env-file .env \
-            -p 8000:8000 \
-            --restart always \
-            jada-server-dev
-        shell: /usr/bin/bash -e {0}
+          docker compose -f docker-compose.yml --env-file .env up -d --build
 
-      - name: Wait for container to be ready
+      - name: Wait for web service
         run: |
           for i in {1..10}; do
-            if sudo docker exec jada-server-dev python manage.py check; then
-              echo "Container is ready";
-              break;
+            if docker compose exec web python manage.py check; then
+              echo "Service is ready"
+              break
             fi
-            echo "Waiting for container...";
+            echo "Waiting for service..."
             sleep 5
           done
-        shell: /usr/bin/bash -e {0}
 
       - name: Run collectstatic
         run: |
-         sudo docker exec jada-server-dev \
-           python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
-        shell: /usr/bin/bash -e {0}
-      
+          docker compose exec web \
+            python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
