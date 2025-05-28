@@ -2,7 +2,7 @@ name: Python App development Deployment CI
 
 on:
   push:
-    branches: [ development ]
+    branches: [ development-0 ]
 
 jobs:
   prepare-artifacts:
@@ -72,7 +72,7 @@ jobs:
         run: chmod 600 .env
 
       - name: Build Docker image
-        run: sudo docker compose build
+        run: sudo docker build -t jada-server-dev .
         shell: /usr/bin/bash -e {0}
 
   deploy:
@@ -94,5 +94,17 @@ jobs:
 
       - name: Run Docker container
         run: |
-          sudo docker compose up -d
+          sudo docker run -d \
+            --name jada-server-dev \
+            --env-file .env \
+            -p 8000:8000 \
+            --restart always \
+            jada-server-dev
         shell: /usr/bin/bash -e {0}
+
+      - name: Run collectstatic
+        run: |
+         sudo docker exec jada-server-dev \
+           python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
+        shell: /usr/bin/bash -e {0}
+      
