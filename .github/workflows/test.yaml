@@ -2,7 +2,7 @@ name: Python App development Deployment CI
 
 on:
   push:
-    branches: [ development-0 ]
+    branches: [ development ]
 
 jobs:
   prepare-artifacts:
@@ -71,9 +71,16 @@ jobs:
       - name: Set .env file permissions
         run: chmod 600 .env
 
-      - name: Build Docker image
-        run: sudo docker build -t jada-server-dev .
+      # - name: Build Docker image
+      #   run: sudo docker build -t jada-server-dev .
+      #   shell: /usr/bin/bash -e {0}
+      - name: Build Docker image with secret key
+        run: |
+          sudo docker build \
+            --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            -t jada-server-dev .
         shell: /usr/bin/bash -e {0}
+
 
   deploy:
     name: Deploy Container
