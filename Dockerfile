@@ -1,5 +1,9 @@
 FROM python:3.11-slim
 
+# Accept SECRET_KEY as build argument
+ARG SECRET_KEY
+ENV SECRET_KEY=${SECRET_KEY}
+
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -26,7 +30,7 @@ COPY . /app/
 # Create static and media directories with proper permissions
 RUN mkdir -p /app/static /app/media /app/staticfiles
 
-# Collect static files (THIS IS THE KEY FIX)
+# Now collectstatic will work because SECRET_KEY is available
 RUN python manage.py collectstatic --noinput --clear --settings=buildcalc.settings.production
 
 # Create non-root user
