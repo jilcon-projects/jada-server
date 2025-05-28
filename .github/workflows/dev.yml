@@ -36,8 +36,10 @@ jobs:
 
       - name: Bundle artifacts
         run: |
-          tar --exclude=deployment-artifacts.tar.gz --exclude=.git -czf deployment-artifacts.tar.gz . .env
-
+          mkdir -p build
+          cp -r * .env build/
+          tar --exclude=build/deployment-artifacts.tar.gz -czf deployment-artifacts.tar.gz -C build .
+      
       - uses: actions/upload-artifact@v4
         with:
           name: deployment-artifacts
