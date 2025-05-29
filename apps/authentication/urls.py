@@ -21,5 +21,4 @@ urlpatterns = [
     path('devices/remembered/', views.RememberedDevicesView.as_view(), name='remembered_devices'),
     path('devices/forget/', views.ForgetDeviceView.as_view(), name='forget_device'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
-    path('google-test/', views.google_test_view, name='google-test'),
 ]
