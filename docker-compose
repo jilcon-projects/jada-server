@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Django Web Application     
+  web:
+    build: .
+    container_name: buildcalc_project_web
+    restart: always
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile - buildcalc.wsgi:application
+      "
+    volumes:
+      - buildcalc_media_volume:/app/media
+
+    ports:
+      - "8000:8000"
+    # Load most variables from .env file
+    env_file:
+      - .env
+    # Override specific variables if needed
+    environment:
+      - DJANGO_SETTINGS_MODULE=buildcalc.settings.production
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - db-check
+    networks:
+      - buildcalc_network
+
+  # Service to check database connectivity
+  db-check:
+    image: postgres:16-alpine
+    command: >
+      sh -c "
+        until pg_isready -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER}; do
+          echo 'Waiting for database...';
+          sleep 2;
+        done;
+        echo 'Database is ready!';
+      "
+    env_file:
+      - .env
+    networks:
+      - buildcalc_network
+
+volumes:
+  # buildcalc_static_volume:
+  buildcalc_media_volume:
+
+networks:
+  buildcalc_network:
+    driver: bridge
