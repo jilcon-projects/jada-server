@@ -79,12 +79,6 @@ class ResponseBuilder:
             'device_forgotten': (StandardResponseMessages.DEVICE_FORGOTTEN, StandardResponseCodes.DEVICE_FORGOTTEN),
             'devices_retrieved': (StandardResponseMessages.REMEMBERED_DEVICES_RETRIEVED, StandardResponseCodes.REMEMBERED_DEVICES_RETRIEVED),
             'logout': (StandardResponseMessages.LOGOUT_SUCCESSFUL, StandardResponseCodes.LOGOUT_SUCCESSFUL),
-            
-            # Project responses
-            # 'project_created': (StandardResponseMessages.PROJECT_CREATED_SUCCESSFUL, StandardResponseCodes.PROJECT_CREATED_SUCCESSFUL),
-            # 'project_retrieved': (StandardResponseMessages.PROJECT_RETRIEVED_SUCCESSFUL, StandardResponseCodes.PROJECT_RETRIEVED_SUCCESSFUL),
-            # 'project_updated': (StandardResponseMessages.PROJECT_UPDATED_SUCCESSFUL, StandardResponseCodes.PROJECT_UPDATED_SUCCESSFUL),
-            # 'project_deleted': (StandardResponseMessages.PROJECT_DELETED_SUCCESSFUL, StandardResponseCodes.PROJECT_DELETED_SUCCESSFUL),
         }
         
         message, code = type_mapping.get(response_type, 
@@ -133,9 +127,6 @@ class ResponseBuilder:
             'google_token_invalid': (StandardResponseMessages.GOOGLE_TOKEN_INVALID, StandardResponseCodes.GOOGLE_TOKEN_INVALID),
             'google_auth_failed': (StandardResponseMessages.GOOGLE_AUTH_FAILED, StandardResponseCodes.GOOGLE_AUTH_FAILED),
             
-            # # Project errors
-            # 'project_creation_failed': (StandardResponseMessages.PROJECT_CREATION_FAILED, StandardResponseCodes.PROJECT_CREATION_FAILED),
-            # 'project_retrieval_failed': (StandardResponseMessages.PROJECT_RETRIEVAL_FAILED, StandardResponseCodes.PROJECT_RETRIEVAL_FAILED),
         }
         
         message, code = type_mapping.get(response_type, 
