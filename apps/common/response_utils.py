@@ -59,6 +59,13 @@ class StandardResponseCodes:
     PASSWORD_CHANGE_FAILED = "password_change_failed"
     INCORRECT_CURRENT_PASSWORD = "incorrect_current_password"
 
+
+    # Google Authentication codes
+    GOOGLE_SIGNIN_SUCCESSFUL = "google_signin_successful"
+    GOOGLE_SIGNUP_SUCCESSFUL = "google_signup_successful"
+    GOOGLE_TOKEN_INVALID = "google_token_invalid"
+    GOOGLE_AUTH_FAILED = "google_auth_failed"
+
     # 2FA related codes
     TWO_FA_REQUIRED = "2fa_required"
     TWO_FA_SETUP_INITIATED = "2fa_setup_initiated"
@@ -179,6 +186,14 @@ class StandardResponseMessages:
     PASSWORD_CHANGED_SUCCESSFUL = "Password changed successfully"
     PASSWORD_CHANGE_FAILED = "Password change failed"
     INCORRECT_CURRENT_PASSWORD = "Current password is incorrect"
+
+
+    # Google Authentication messages
+    GOOGLE_SIGNIN_SUCCESSFUL = "Signed in with Google successfully"
+    GOOGLE_SIGNUP_SUCCESSFUL = "Account created and signed in with Google successfully"
+    GOOGLE_TOKEN_INVALID = "Invalid Google token"
+    GOOGLE_AUTH_FAILED = "Google authentication failed"
+
 
     # 2FA related messages
     TWO_FA_REQUIRED = "2FA verification required"

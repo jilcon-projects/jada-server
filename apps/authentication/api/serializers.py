@@ -106,6 +106,26 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_profile_completed(self, obj):
         return bool(obj.first_name and obj.last_name)
+    
+
+class GoogleAuthSerializer(serializers.Serializer):
+    """Serializer for Google authentication"""
+    id_token = serializers.CharField(
+        max_length=2048,
+        help_text="Google ID token from Google Sign-In"
+    )
+    
+    def validate_id_token(self, value):
+        """Validate the ID token format"""
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("ID token is required")
+        
+        # Basic format check (Google ID tokens are JWT format)
+        parts = value.split('.')
+        if len(parts) != 3:
+            raise serializers.ValidationError("Invalid ID token format")
+        
+        return value.strip()
 
 
 class EmailVerificationSerializer(serializers.Serializer):

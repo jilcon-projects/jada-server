@@ -9,6 +9,7 @@ urlpatterns = [
     path('complete-profile/', views.CompleteProfileView.as_view(), name='complete_profile'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('login/', views.LoginView.as_view(), name='login'),
+    path('login/google/', views.GoogleAuthView.as_view(), name='google_login'),
     path('password/reset/otp/', views.PasswordResetOTPView.as_view(), name='password_reset_otp'),
     path('password/reset/otp/confirm/', views.PasswordResetConfirmOTPView.as_view(), name='password_reset_otp_confirm'),
     path('password/change/', views.ChangePasswordView.as_view(), name='change_password'),
@@ -20,4 +21,5 @@ urlpatterns = [
     path('devices/remembered/', views.RememberedDevicesView.as_view(), name='remembered_devices'),
     path('devices/forget/', views.ForgetDeviceView.as_view(), name='forget_device'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('google-test/', views.google_test_view, name='google-test'),
 ]

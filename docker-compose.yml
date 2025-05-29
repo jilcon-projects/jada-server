@@ -22,6 +22,7 @@ services:
     # Override specific variables if needed
     environment:
       - DJANGO_SETTINGS_MODULE=buildcalc.settings.production
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db-check
     networks:
