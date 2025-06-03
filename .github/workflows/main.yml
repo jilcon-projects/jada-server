@@ -79,7 +79,7 @@ jobs:
           sudo docker build \
             --build-arg DJANGO_SETTINGS_MODULE="${{ secrets.DJANGO_SETTINGS_MODULE }}" \
             --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
-            -t jada-server-prod prod.Dockerfile .
+            -t jada-server-prod -f prod.Dockerfile .
         shell: /usr/bin/bash -e {0}
 
 
