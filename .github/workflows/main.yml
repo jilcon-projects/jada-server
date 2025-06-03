@@ -1,0 +1,112 @@
+name: Python App development Deployment CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  prepare-artifacts:
+    name: Prepare Deployment Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Write Secrets to .env
+        run: |
+          echo "PORT=5000" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "DEBUG=${{ secrets.DEBUG }}" >> .env
+          echo "DJANGO_SETTINGS_MODULE=${{ secrets.DJANGO_SETTINGS_MODULE }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
+          echo "CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}" >> .env
+          echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}" >> .env
+          echo "TWO_FACTOR_ISSUER_NAME=${{ secrets.TWO_FACTOR_ISSUER_NAME }}" >> .env
+          echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> .env
+          echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL  }}" >> .env
+          echo "DEFAULT_FROM_NAME=${{ secrets.DEFAULT_FROM_NAME  }}" >> .env
+
+        working-directory: ${{ github.workspace }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Optional Tests
+        run: pytest || true  # Remove '|| true' to fail on test errors
+
+      - name: Create deployment tar file
+        run: touch deployment-artifacts.tar.gz
+      
+      - name: Bundle deployment files
+        run: |
+          tar --exclude=deployment-artifacts.tar.gz --exclude=__pycache__ --exclude=.git -czf deployment-artifacts.tar.gz . .env
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-artifacts
+          path: deployment-artifacts.tar.gz
+
+  build-image:
+    name: Build Docker Image
+    runs-on: [self-hosted, jada-server-prod]
+    needs: prepare-artifacts
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: deployment-artifacts
+
+      - name: Extract artifact
+        run: tar -xvf deployment-artifacts.tar.gz
+
+      - name: Set .env file permissions
+        run: chmod 600 .env
+
+      # - name: Build Docker image
+      #   run: sudo docker build -t jada-server-prod .
+      #   shell: /usr/bin/bash -e {0}
+      - name: Build Docker image with secret key
+        run: |
+          sudo docker build \
+            --build-arg DJANGO_SETTINGS_MODULE="${{ secrets.DJANGO_SETTINGS_MODULE }}" \
+            --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            -t jada-server-prod prod.Dockerfile .
+        shell: /usr/bin/bash -e {0}
+
+
+  deploy:
+    name: Deploy Container
+    runs-on: [self-hosted, jada-server-prod]
+    needs: build-image
+    steps:
+      - name: Stop existing container
+        run: |
+          CONTAINER_NAME=jada-server-prod
+          if [ "$(sudo docker ps -aq -f name=$CONTAINER_NAME)" ]; then
+            echo "Stopping and removing existing container..."
+            sudo docker stop $CONTAINER_NAME || true
+            sudo docker rm $CONTAINER_NAME || true
+          else
+            echo "No container named $CONTAINER_NAME is running."
+          fi
+        shell: /usr/bin/bash -e {0}
+
+      - name: Run Docker container
+        run: |
+          sudo docker run -d \
+            --name jada-server-prod \
+            --env DJANGO_SETTINGS_MODULE=${{ secrets.DJANGO_SETTINGS_MODULE }} \
+            --env-file .env \
+            -p 5000:5000 \
+            --restart always \
+            jada-server-prod
+        shell: /usr/bin/bash -e {0}
