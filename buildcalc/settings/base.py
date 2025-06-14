@@ -115,6 +115,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+
+    'URL_FORMAT_OVERRIDE': None,
 }
 
 # JWT Settings

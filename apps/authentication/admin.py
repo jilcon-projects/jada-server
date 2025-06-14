@@ -329,9 +329,6 @@ class PasswordResetOTPAdmin(admin.ModelAdmin):
         """Optimize queryset"""
         return super().get_queryset(request).select_related('user')
 
-
-
-# Customize admin site headers
 admin.site.site_header = 'BuildCalc Administration'
 admin.site.site_title = 'BuildCalc Admin'
 admin.site.index_title = 'Welcome to BuildCalc Administration'

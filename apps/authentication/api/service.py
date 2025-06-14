@@ -24,6 +24,8 @@ from .serializers import (
     UserRegistrationSerializer,
     GoogleAuthSerializer
 )
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 
 class AuthService:
@@ -36,7 +38,7 @@ class AuthService:
             return ResponseBuilder.error('validation', serializer.errors)
         
         try:
-            # Save the user
+            # Save the user (
             user = serializer.save()
             
             # Send verification email
@@ -50,15 +52,17 @@ class AuthService:
             user_data = {
                 'id': user.id,
                 'email': user.email,
-                'username': user.username,
+                'username': user.username,  # Auto-generated username
+                'first_name': user.first_name,
+                'last_name': user.last_name,
                 'is_email_verified': user.is_email_verified,
-                'profile_completed': False,
+                'profile_completed': True,  # Now True since we have first/last name
             }
             
             response_data = {
                 'user': user_data,
-                'access': str(access_token),
-                'refresh': str(refresh),
+                'access_token': str(access_token),  # Updated naming
+                'refresh_token': str(refresh),      # Updated naming
                 'verification_email_sent': verification_sent
             }
             
@@ -66,7 +70,7 @@ class AuthService:
             
         except Exception as e:
             return ResponseBuilder.error('registration_failed')
-    
+        
     @staticmethod
     def verify_email(token, uid):
         """Handle email verification logic"""
@@ -155,42 +159,35 @@ class AuthService:
                     'user_id': user.id
                 }
             )
-        
         # No 2FA required, complete login
         return AuthService._complete_login(user, request, remember_device, data)
-    
+
     @staticmethod
     def verify_google_token(token):
-        """Verify Google ID token and return user info"""
+        """Verify Google ID token using official Google library"""
         try:
-            # Google's token verification endpoint
-            google_url = f'https://oauth2.googleapis.com/tokeninfo?id_token={token}'
+            idinfo = id_token.verify_oauth2_token(
+                token, 
+                google_requests.Request(), 
+                settings.GOOGLE_OAUTH2_CLIENT_ID
+            )
             
-            response = requests.get(google_url)
-            
-            if response.status_code != 200:
-                return None, "Invalid Google token"
-            
-            user_data = response.json()
-            
-            # Verify the token is for our app
-            if user_data.get('aud') != settings.GOOGLE_OAUTH2_CLIENT_ID:
-                return None, "Token not issued for this application"
-            
-            # Extract user information (removed picture field)
+            # Extract user information
             google_user_info = {
-                'email': user_data.get('email'),
-                'first_name': user_data.get('given_name', ''),
-                'last_name': user_data.get('family_name', ''),
-                'google_id': user_data.get('sub'),
-                'email_verified': user_data.get('email_verified', False),
+                'email': idinfo.get('email'),
+                'first_name': idinfo.get('given_name', ''),
+                'last_name': idinfo.get('family_name', ''),
+                'google_id': idinfo.get('sub'),
+                'email_verified': idinfo.get('email_verified', False),
             }
             
             return google_user_info, None
             
+        except ValueError as e:
+            return None, f"Invalid Google token: {str(e)}"
         except Exception as e:
             return None, f"Error verifying Google token: {str(e)}"
-    
+        
     @staticmethod
     def google_auth(data, request):
         """Handle Google Authentication (both sign in and sign up)"""
@@ -250,7 +247,7 @@ class AuthService:
                     last_name=google_user_info['last_name'],
                     google_id=google_user_info['google_id'],
                     is_email_verified=google_user_info['email_verified'],
-                    password=None  # No password for Google users initially
+                    password=None 
                 )
                 
                 return AuthService._complete_google_auth(user, request, is_new_user=True)
@@ -289,8 +286,8 @@ class AuthService:
         
         response_data = {
             'user': user_data,
-            'access': str(access_token),
-            'refresh': str(refresh),
+            'access_token': str(access_token),  
+            'refresh_token': str(refresh),      
             'is_new_user': is_new_user,
             'requires_2fa': False,  
             'auth_method': 'google',
@@ -351,7 +348,6 @@ class AuthService:
     def _complete_login(user, request, remember_device, data):
         """Complete the login process and return tokens"""
         
-        # Perform Django login
         login(request, user)
         
         # Create JWT tokens
@@ -370,8 +366,8 @@ class AuthService:
         
         response_data = {
             'user': user_data,
-            'access': str(access_token),
-            'refresh': str(refresh),
+            'access_token': str(access_token),  
+            'refresh_token': str(refresh),      
             'requires_2fa': False,
         }
         
@@ -390,6 +386,7 @@ class AuthService:
             response_data['device_id'] = device_id
         
         return ResponseBuilder.success('login', response_data)
+
         
     @staticmethod
     def complete_profile(user, data):

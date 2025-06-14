@@ -6,6 +6,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
 from .models import User, PasswordResetOTP
 from .email_service import send_custom_email
+from decouple import config
 from django.utils.encoding import force_str
 import logging
 
@@ -23,7 +24,10 @@ def send_verification_email(user, request):
         domain = request.get_host()
         protocol = 'https' if request.is_secure() else 'http'
         
-        verification_url = f"{protocol}://{domain}/api/auth/verify-email/?token={token}&uid={uid}"
+        # verification_url = f"{protocol}://{domain}/api/auth/verify-email/?token={token}&uid={uid}"
+        # Get frontend URL from environment or use request domain
+        frontend_domain = config('FRONTEND_URL', default=f"{protocol}://{domain}")
+        verification_url = f"{frontend_domain}/auth/verify-email?token={token}&uid={uid}"
         
         # Email content
         html_content = f"""
