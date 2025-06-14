@@ -1,5 +1,6 @@
 import random
 import string
+import uuid
 from datetime import timedelta
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
@@ -9,19 +10,19 @@ from .managers import CustomUserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom User model with email as username field"""
-    
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     phone = models.CharField(max_length=20, blank=True)
-    country = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100, blank=True)  
+    state = models.CharField(max_length=100, blank=True)    
     ACCOUNT_TYPES = [
         ('business', 'Business'),
         ('individual', 'Individual'),
     ]
-    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES, blank=True) 
+    google_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
@@ -31,8 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
-    
+    REQUIRED_FIELDS = ['first_name', 'last_name']  
     class Meta:
         db_table = 'auth_user'
     
