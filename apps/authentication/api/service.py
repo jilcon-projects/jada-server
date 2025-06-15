@@ -50,7 +50,7 @@ class AuthService:
             
             # Prepare user data
             user_data = {
-                'id': user.id,
+                'id': str(user.uuid), 
                 'email': user.email,
                 'username': user.username,  # Auto-generated username
                 'first_name': user.first_name,
@@ -273,7 +273,7 @@ class AuthService:
         
         # Prepare user data
         user_data = {
-            'id': user.id,
+            'id': str(user.uuid), 
             'email': user.email,
             'username': user.username,
             'first_name': user.first_name,
@@ -356,7 +356,7 @@ class AuthService:
         
         # Prepare user data
         user_data = {
-            'id': user.id,
+            'id': str(user.uuid), 
             'email': user.email,
             'username': user.username,
             'first_name': user.first_name,
@@ -506,7 +506,7 @@ class AuthService:
         """Get user profile data"""
         try:
             data = {
-                'id': user.id,
+                'id': str(user.uuid),
                 'email': user.email,
                 'username': user.username,
                 'first_name': user.first_name,
@@ -545,7 +545,7 @@ class AuthService:
             
             # Prepare response data
             response_data = {
-                'id': user.id,
+                'id': str(user.uuid),
                 'email': user.email,
                 'username': user.username,
                 'first_name': user.first_name,
@@ -705,7 +705,7 @@ class AuthService:
                 
                 # Prepare user data
                 user_data = {
-                    'id': user.id,
+                    'id': str(user.uuid),
                     'email': user.email,
                     'username': user.username,
                     'first_name': user.first_name,
@@ -774,7 +774,7 @@ class AuthService:
             
             data = {
                 'user': {
-                    'id': user.id,
+                    'id': str(user.uuid),
                     'email': user.email,
                     'username': user.username,
                     'first_name': user.first_name,

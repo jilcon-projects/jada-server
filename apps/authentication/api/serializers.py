@@ -11,10 +11,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
     first_name = serializers.CharField(max_length=30)
     last_name = serializers.CharField(max_length=30)
+    id = serializers.UUIDField(source='uuid', read_only=True) 
     
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'confirm_password']
+        read_only_fields = ['id']
     
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -159,6 +161,7 @@ class TwoFactorAuthSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='get_full_name', read_only=True)
     profile_completed = serializers.SerializerMethodField()
+    id = serializers.UUIDField(source='uuid', read_only=True)  
     
     class Meta:
         model = User
