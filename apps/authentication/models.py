@@ -10,6 +10,7 @@ from .managers import CustomUserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom User model with email as username field"""
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=30)
@@ -41,6 +42,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @classmethod
+    def get_by_uuid(cls, uuid_str):
+        """Get user by UUID"""
+        try:
+            return cls.objects.get(uuid=uuid_str)
+        except cls.DoesNotExist:
+            return None
+        except ValueError:
+            return None
     
 
 class PasswordResetOTP(models.Model):
