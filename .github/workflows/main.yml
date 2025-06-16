@@ -34,6 +34,9 @@ jobs:
           echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> .env
           echo "DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL  }}" >> .env
           echo "DEFAULT_FROM_NAME=${{ secrets.DEFAULT_FROM_NAME  }}" >> .env
+          echo "GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}" >> .env
+          echo "GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}" >> .env
+          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
 
         working-directory: ${{ github.workspace }}
 
