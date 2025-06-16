@@ -162,15 +162,176 @@ class AuthService:
         # No 2FA required, complete login
         return AuthService._complete_login(user, request, remember_device, data)
 
+    # @staticmethod
+    # def verify_google_token(token):
+    #     """Verify Google ID token using official Google library"""
+    #     try:
+    #         idinfo = id_token.verify_oauth2_token(
+    #             token, 
+    #             google_requests.Request(), 
+    #             settings.GOOGLE_OAUTH2_CLIENT_ID
+    #         )
+            
+    #         # Extract user information
+    #         google_user_info = {
+    #             'email': idinfo.get('email'),
+    #             'first_name': idinfo.get('given_name', ''),
+    #             'last_name': idinfo.get('family_name', ''),
+    #             'google_id': idinfo.get('sub'),
+    #             'email_verified': idinfo.get('email_verified', False),
+    #         }
+            
+    #         return google_user_info, None
+            
+    #     except ValueError as e:
+    #         return None, f"Invalid Google token: {str(e)}"
+    #     except Exception as e:
+    #         return None, f"Error verifying Google token: {str(e)}"
+        
+    # @staticmethod
+    # def google_auth(data, request):
+    #     """Handle Google Authentication (both sign in and sign up)"""
+    #     serializer = GoogleAuthSerializer(data=data)
+        
+    #     if not serializer.is_valid():
+    #         return ResponseBuilder.error('validation', serializer.errors)
+        
+    #     google_token = serializer.validated_data['id_token']
+        
+    #     # Verify Google token
+    #     google_user_info, error = AuthService.verify_google_token(google_token)
+        
+    #     if error:
+    #         return ResponseBuilder.error('google_token_invalid')
+        
+    #     email = google_user_info['email']
+        
+    #     try:
+    #         # Check if user already exists
+    #         user = User.objects.filter(email=email).first()
+            
+    #         if user:
+    #             # EXISTING USER - Sign them in
+    #             updated = False
+                
+    #             # Update Google ID if not set
+    #             if not user.google_id and google_user_info['google_id']:
+    #                 user.google_id = google_user_info['google_id']
+    #                 updated = True
+                
+    #             # Update names if empty
+    #             if not user.first_name and google_user_info['first_name']:
+    #                 user.first_name = google_user_info['first_name']
+    #                 updated = True
+                    
+    #             if not user.last_name and google_user_info['last_name']:
+    #                 user.last_name = google_user_info['last_name']
+    #                 updated = True
+                
+    #             # Mark email as verified if Google says it's verified
+    #             if google_user_info['email_verified'] and not user.is_email_verified:
+    #                 user.is_email_verified = True
+    #                 updated = True
+                
+    #             if updated:
+    #                 user.save()
+                
+    #             return AuthService._complete_google_auth(user, request, is_new_user=False)
+            
+    #         else:
+    #             # NEW USER - Create account and sign them in
+    #             user = User.objects.create_user(
+    #                 email=email,
+    #                 username=email,  # Use email as username
+    #                 first_name=google_user_info['first_name'],
+    #                 last_name=google_user_info['last_name'],
+    #                 google_id=google_user_info['google_id'],
+    #                 is_email_verified=google_user_info['email_verified'],
+    #                 password=None 
+    #             )
+                
+    #             return AuthService._complete_google_auth(user, request, is_new_user=True)
+                
+    #     except Exception as e:
+    #         print(f"Error in Google authentication: {str(e)}")
+    #         return ResponseBuilder.error('google_auth_failed')
+
     @staticmethod
     def verify_google_token(token):
-        """Verify Google ID token using official Google library"""
+        """Verify Google ID token using official Google library - WITH DEBUG"""
         try:
+            # Debug 1: Basic token info
+            print("=== GOOGLE TOKEN DEBUG START ===")
+            print(f"Token length: {len(token)}")
+            print(f"Token starts with: {token[:50]}...")
+            print(f"Token ends with: ...{token[-50:]}")
+            print(f"Backend Client ID: {settings.GOOGLE_OAUTH2_CLIENT_ID}")
+            print(f"Client ID length: {len(settings.GOOGLE_OAUTH2_CLIENT_ID)}")
+            
+            # Debug 2: Check if token has proper JWT structure
+            token_parts = token.split('.')
+            print(f"Token parts count: {len(token_parts)} (should be 3 for JWT)")
+            
+            if len(token_parts) == 3:
+                # Decode the payload (middle part) without verification to see what's inside
+                import base64
+                import json
+                
+                # Add padding if needed for base64 decoding
+                payload = token_parts[1]
+                payload += '=' * (4 - len(payload) % 4)
+                
+                try:
+                    decoded_payload = base64.urlsafe_b64decode(payload)
+                    payload_json = json.loads(decoded_payload)
+                    
+                    print(f"Token payload aud (audience): {payload_json.get('aud', 'NOT_FOUND')}")
+                    print(f"Token payload iss (issuer): {payload_json.get('iss', 'NOT_FOUND')}")
+                    print(f"Token payload email: {payload_json.get('email', 'NOT_FOUND')}")
+                    print(f"Token payload exp: {payload_json.get('exp', 'NOT_FOUND')}")
+                    print(f"Token payload iat: {payload_json.get('iat', 'NOT_FOUND')}")
+                    
+                    # Check if audiences match
+                    token_aud = payload_json.get('aud', '')
+                    backend_client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
+                    print(f"Audience match: {token_aud == backend_client_id}")
+                    
+                    if token_aud != backend_client_id:
+                        print("AUDIENCE MISMATCH!")
+                        print(f"Token aud:    '{token_aud}'")
+                        print(f"Backend ID:   '{backend_client_id}'")
+                        print(f"Length diff:  {len(token_aud)} vs {len(backend_client_id)}")
+                    
+                    # Check token expiration
+                    import time
+                    current_time = int(time.time())
+                    token_exp = payload_json.get('exp', 0)
+                    print(f"Current timestamp: {current_time}")
+                    print(f"Token expires at:  {token_exp}")
+                    print(f"Token expired: {current_time > token_exp}")
+                    
+                except Exception as decode_error:
+                    print(f"Failed to decode token payload: {str(decode_error)}")
+            
+            # Debug 3: Environment check
+            print(f"Django settings module: {settings.SETTINGS_MODULE}")
+            
+            # Debug 4: Network/DNS check
+            print("Testing Google's token verification endpoint...")
+            
+            # Now attempt the actual verification
+            print("=== ATTEMPTING TOKEN VERIFICATION ===")
+            
             idinfo = id_token.verify_oauth2_token(
                 token, 
                 google_requests.Request(), 
                 settings.GOOGLE_OAUTH2_CLIENT_ID
             )
+            
+            print("=== TOKEN VERIFICATION SUCCESSFUL ===")
+            print(f"Verified user email: {idinfo.get('email')}")
+            print(f"Verified user name: {idinfo.get('name')}")
+            print(f"Verified audience: {idinfo.get('aud')}")
             
             # Extract user information
             google_user_info = {
@@ -181,29 +342,66 @@ class AuthService:
                 'email_verified': idinfo.get('email_verified', False),
             }
             
+            print("=== GOOGLE TOKEN DEBUG END ===")
             return google_user_info, None
             
         except ValueError as e:
+            print("=== VALUEERROR OCCURRED ===")
+            print(f"ValueError message: {str(e)}")
+            print(f"ValueError type: {type(e)}")
+            print(f"ValueError args: {e.args}")
+            
+            # Common ValueError messages and their meanings:
+            if "Token expired" in str(e):
+                print("DIAGNOSIS: Token has expired")
+            elif "Invalid token" in str(e):
+                print("DIAGNOSIS: Token format is invalid")
+            elif "Wrong issuer" in str(e):
+                print("DIAGNOSIS: Token not issued by Google")
+            elif "Invalid audience" in str(e):
+                print("DIAGNOSIS: Audience mismatch")
+            
+            print("=== GOOGLE TOKEN DEBUG END (ValueError) ===")
             return None, f"Invalid Google token: {str(e)}"
+            
         except Exception as e:
+            print("=== GENERAL EXCEPTION OCCURRED ===")
+            print(f"Exception message: {str(e)}")
+            print(f"Exception type: {type(e)}")
+            print(f"Exception args: {getattr(e, 'args', 'No args')}")
+            
+            # Import traceback for full stack trace
+            import traceback
+            print(f"Full traceback: {traceback.format_exc()}")
+            
+            print("=== GOOGLE TOKEN DEBUG END (Exception) ===")
             return None, f"Error verifying Google token: {str(e)}"
-        
+
     @staticmethod
     def google_auth(data, request):
-        """Handle Google Authentication (both sign in and sign up)"""
+        """Handle Google Authentication (both sign in and sign up) - WITH DEBUG"""
+        print("=== GOOGLE AUTH DEBUG START ===")
+        print(f"Received data keys: {list(data.keys()) if isinstance(data, dict) else 'Not a dict'}")
+        
         serializer = GoogleAuthSerializer(data=data)
         
         if not serializer.is_valid():
+            print(f"Serializer validation failed: {serializer.errors}")
             return ResponseBuilder.error('validation', serializer.errors)
         
         google_token = serializer.validated_data['id_token']
+        print(f"Extracted token from serializer, length: {len(google_token)}")
         
         # Verify Google token
         google_user_info, error = AuthService.verify_google_token(google_token)
         
         if error:
+            print(f"Token verification failed with error: {error}")
             return ResponseBuilder.error('google_token_invalid')
         
+        print(f"Token verification successful for email: {google_user_info.get('email')}")
+        
+        # Rest of your existing google_auth code...
         email = google_user_info['email']
         
         try:
@@ -211,6 +409,7 @@ class AuthService:
             user = User.objects.filter(email=email).first()
             
             if user:
+                print(f"Existing user found: {user.email}")
                 # EXISTING USER - Sign them in
                 updated = False
                 
@@ -235,10 +434,12 @@ class AuthService:
                 
                 if updated:
                     user.save()
+                    print(f"Updated existing user: {user.email}")
                 
                 return AuthService._complete_google_auth(user, request, is_new_user=False)
             
             else:
+                print(f"Creating new user for email: {email}")
                 # NEW USER - Create account and sign them in
                 user = User.objects.create_user(
                     email=email,
@@ -250,10 +451,13 @@ class AuthService:
                     password=None 
                 )
                 
+                print(f"New user created: {user.email}")
                 return AuthService._complete_google_auth(user, request, is_new_user=True)
                 
         except Exception as e:
-            print(f"Error in Google authentication: {str(e)}")
+            print(f"Database operation failed: {str(e)}")
+            import traceback
+            print(f"Full traceback: {traceback.format_exc()}")
             return ResponseBuilder.error('google_auth_failed')
     
     @staticmethod
