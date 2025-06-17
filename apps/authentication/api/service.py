@@ -52,17 +52,17 @@ class AuthService:
             user_data = {
                 'id': str(user.uuid), 
                 'email': user.email,
-                'username': user.username,  # Auto-generated username
+                'username': user.username, 
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'is_email_verified': user.is_email_verified,
-                'profile_completed': True,  # Now True since we have first/last name
+                'profile_completed': True,  
             }
             
             response_data = {
                 'user': user_data,
-                'access_token': str(access_token),  # Updated naming
-                'refresh_token': str(refresh),      # Updated naming
+                'access_token': str(access_token),  
+                'refresh_token': str(refresh),     
                 'verification_email_sent': verification_sent
             }
             
@@ -387,7 +387,6 @@ class AuthService:
         
         return ResponseBuilder.success('login', response_data)
 
-        
     @staticmethod
     def complete_profile(user, data):
         """Handle user profile completion logic"""
