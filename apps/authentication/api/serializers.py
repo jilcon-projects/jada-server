@@ -131,6 +131,13 @@ class PasswordResetOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
+class ResendPasswordResetOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        required=True,
+        help_text="Email address to resend password reset OTP to"
+    )
+
+
 class PasswordResetConfirmOTPSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp_code = serializers.CharField(max_length=6, min_length=6)
@@ -196,10 +203,34 @@ class GoogleAuthSerializer(serializers.Serializer):
 
 
 class EmailVerificationSerializer(serializers.Serializer):
-    token = serializers.CharField()
-    uid = serializers.CharField()
+    token = serializers.CharField(
+        required=True,
+        help_text="Email verification token from the verification email"
+    )
+    uid = serializers.CharField(
+        required=True,
+        help_text="Base64 encoded user ID from the verification email"
+    )
 
 
+class ResendEmailVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        required=True,
+        help_text="Email address to resend verification to"
+    )
+
+
+class TwoFactorSetupSerializer(serializers.Serializer):
+    """Serializer for 2FA setup endpoint"""
+    pass  
+
+class UserStatusSerializer(serializers.Serializer):
+    """Serializer for user status endpoint"""
+    pass 
+
+class RememberedDevicesSerializer(serializers.Serializer):
+    """Serializer for remembered devices endpoint"""
+    pass  
 class TwoFactorDisableSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
@@ -210,3 +241,4 @@ class ForgetDeviceSerializer(serializers.Serializer):
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(required=False)
+    

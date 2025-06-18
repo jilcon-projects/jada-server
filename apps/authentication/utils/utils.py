@@ -4,8 +4,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
-from .models import User, PasswordResetOTP
-from .email_service import send_custom_email
+from ..models import User, PasswordResetOTP
+from ..email_service import send_custom_email
+from ..utils.token_generator import email_verification_token_generator
 from decouple import config
 from django.utils.encoding import force_str
 import logging
@@ -17,7 +18,8 @@ def send_verification_email(user, request):
     """Send email verification link to user"""
     try:
        
-        token = default_token_generator.make_token(user)
+        # token = default_token_generator.make_token(user)
+        token = email_verification_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         # Get domain
@@ -27,7 +29,7 @@ def send_verification_email(user, request):
         # verification_url = f"{protocol}://{domain}/api/auth/verify-email/?token={token}&uid={uid}"
         # Get frontend URL from environment or use request domain
         frontend_domain = config('FRONTEND_URL', default=f"{protocol}://{domain}")
-        verification_url = f"{frontend_domain}/auth/verify-email?token={token}&uid={uid}"
+        verification_url = f"{frontend_domain}/api/auth/verify-email/?token={token}&uid={uid}"
         
         # Email content
         html_content = f"""
@@ -41,7 +43,7 @@ def send_verification_email(user, request):
                     Click here to verify your email
                 </a>
             </div>
-            <p style="color: red; font-weight: bold;">⏰ This link will expire in 24 hours.</p>
+            <p style="color: red; font-weight: bold;">⏰ This link will expire in 15 minutes.</p>
             <p>If you didn't create this account, please ignore this email.</p>
             <p>Best regards,<br>The BuildCalc Team</p>
         </body>

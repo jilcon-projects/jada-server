@@ -18,7 +18,9 @@ from .serializers import (
     TwoFactorDisableSerializer,
     UserLoginSerializer,
     UserRegistrationSerializer,
-    GoogleAuthSerializer
+    GoogleAuthSerializer,
+    ResendEmailVerificationSerializer,
+    ResendPasswordResetOTPSerializer
 )
 
 
@@ -51,6 +53,21 @@ class EmailVerificationView(APIView):
         except Exception as e:
             error_trace = traceback.format_exc()
             print(f"Email verification error: {error_trace}")
+            return server_error_response()
+
+
+class ResendEmailVerificationView(APIView):
+    """Resend email verification"""
+    permission_classes = [AllowAny]
+    serializer_class = ResendEmailVerificationSerializer
+    
+    def post(self, request):
+        try:
+            result = AuthService.verify_email(resend=True, email=request.data.get('email'), request=request)
+            return result.to_response()
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            print(f"Resend verification error: {error_trace}")
             return server_error_response()
 
 
@@ -113,6 +130,21 @@ class PasswordResetOTPView(APIView):
         except Exception as e:
             error_trace = traceback.format_exc()
             print(f"Password reset OTP error: {error_trace}")
+            return server_error_response()
+        
+
+class ResendPasswordResetOTPView(APIView):
+    """Resend password reset OTP"""
+    permission_classes = [AllowAny]
+    serializer_class = ResendPasswordResetOTPSerializer
+    
+    def post(self, request):
+        try:
+            result = AuthService.send_password_reset_otp(request.data, request, resend=True)
+            return result.to_response()
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            print(f"Resend password reset OTP error: {error_trace}")
             return server_error_response()
 
 

@@ -49,6 +49,12 @@ class StandardResponseCodes:
     PASSWORD_RESET_OTP_FAILED = "password_reset_otp_failed"
     OTP_VERIFICATION_FAILED = "otp_verification_failed"
 
+    # Success codes
+    PASSWORD_RESET_OTP_RESENT = "password_reset_otp_resent"
+
+    # Error codes
+    PASSWORD_RESET_OTP_RESEND_FAILED = "password_reset_otp_resend_failed"
+
     # Profile retrieve/update related codes
     PROFILE_RETRIEVED_SUCCESSFUL = "profile_retrieved_successful"
     PROFILE_UPDATED_SUCCESSFUL = "profile_updated_successful"
@@ -110,7 +116,17 @@ class StandardResponseCodes:
     VERIFICATION_INVALID = "verification_invalid"
     VERIFICATION_TOKEN_INVALID = "verification_token_invalid"
     VERIFICATION_LINK_INVALID = "verification_link_invalid"
-    
+
+    # Success codes
+    EMAIL_VERIFICATION_RESENT = "email_verification_resent"
+
+    # Error codes  
+    EMAIL_REQUIRED = "email_required"
+    REQUEST_REQUIRED = "request_required"
+    EMAIL_ALREADY_VERIFIED = "email_already_verified"
+    RESEND_FAILED = "resend_failed"
+    VERIFICATION_TOKEN_EXPIRED = "verification_token_expired"
+        
     # Project error codes
     PROJECT_CREATION_FAILED = "project_creation_failed"
     PROJECT_RETRIEVAL_FAILED = "project_retrieval_failed"
@@ -143,6 +159,16 @@ class StandardResponseMessages:
     PASSWORD_RESET_SUCCESSFUL = "Password reset successful"
     EMAIL_VERIFICATION_SUCCESSFUL = "Email verification successful"
 
+    # Success messages
+    EMAIL_VERIFICATION_RESENT = "Verification email has been resent"
+
+    # Error messages
+    EMAIL_REQUIRED = "Email address is required"
+    REQUEST_REQUIRED = "Request object is required"
+    EMAIL_ALREADY_VERIFIED = "Email is already verified"
+    RESEND_FAILED = "Failed to resend verification email"
+    VERIFICATION_TOKEN_EXPIRED = "Verification token has expired"
+
     ACCOUNT_DEACTIVATED = "Account is deactivated"
     EMAIL_NOT_VERIFIED = "Please verify your email before logging in"
     INVALID_CREDENTIALS = "Invalid credentials"
@@ -166,6 +192,12 @@ class StandardResponseMessages:
     # Password reset messages
     PASSWORD_RESET_EMAIL_SENT = "If the email exists, a password reset link has been sent"
     PASSWORD_RESET_EMAIL_FAILED = "Failed to send password reset email"
+
+    # Success messages
+    PASSWORD_RESET_OTP_RESENT = "Password reset code has been resent"
+
+    # Error messages
+    PASSWORD_RESET_OTP_RESEND_FAILED = "Failed to resend password reset code"   
 
     # Password reset confirmation messages
     PASSWORD_RESET_CONFIRMED = "Password reset successful"
