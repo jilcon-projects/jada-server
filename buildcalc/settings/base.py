@@ -116,6 +116,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 
+    'EXCEPTION_HANDLER': 'apps.authentication.exceptions.custom_exception_handler',
+
     'URL_FORMAT_OVERRIDE': None,
 }
 
@@ -140,7 +142,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 

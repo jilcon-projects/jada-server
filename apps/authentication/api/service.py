@@ -101,12 +101,12 @@ class AuthService:
                     })
                 else:
                     return ResponseBuilder.error('resend_failed')
-                
+            
             except User.DoesNotExist:
                 return ResponseBuilder.error('user_not_found')
             except Exception as e:
                 # Log the error for debugging
-                # logger.error(f"Failed to resend verification email: {str(e)}")
+                print(f"Failed to resend verification email: {str(e)}")
                 return ResponseBuilder.error('resend_failed')
         
         # Handle email verification
@@ -114,19 +114,36 @@ class AuthService:
             return ResponseBuilder.error('verification_invalid')
         
         try:
-            # Decode user ID
-            user_id = force_str(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=user_id)
+            # Decode user ID with proper validation
+            try:
+                decoded_uid = urlsafe_base64_decode(uid)
+                user_id = force_str(decoded_uid)
+                user_id_int = int(user_id)
+                
+                if user_id_int <= 0:
+                    return ResponseBuilder.error('verification_link_invalid')
+                    
+            except (ValueError, TypeError) as e:
+                print(f"Failed to decode UID '{uid}': {str(e)}")
+                return ResponseBuilder.error('verification_link_invalid')
             
-            # Check if email is already verified
+            # Get user with the validated ID
+            try:
+                user = User.objects.get(pk=user_id_int)
+            except User.DoesNotExist:
+                print(f"User not found with ID: {user_id_int}")
+                return ResponseBuilder.error('verification_link_invalid')
+            
+            if not email_verification_token_generator.check_token(user, token):
+                print(f"Invalid token for user {user.id}")
+                return ResponseBuilder.error('verification_token_invalid')
+            
             if user.is_email_verified:
                 return ResponseBuilder.success('email_verification', {
                     'email_verified': True,
                     'message': 'Email is already verified!'
                 })
-            
-            # Verify token
-            if email_verification_token_generator.check_token(user, token):
+            else:
                 # Mark email as verified
                 user.is_email_verified = True
                 user.save()
@@ -135,12 +152,11 @@ class AuthService:
                     'email_verified': True,
                     'message': 'Email successfully verified!'
                 })
-            else:
-                return ResponseBuilder.error('verification_token_invalid')
-                
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            return ResponseBuilder.error('verification_link_invalid')
         
+        except Exception as e:
+            print(f"Unexpected error in email verification: {str(e)}")
+            return ResponseBuilder.error('verification_link_invalid')
+                    
     @staticmethod
     def login(data, request):
         """Handle user login logic"""
