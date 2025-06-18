@@ -3,7 +3,8 @@ import requests
 from datetime import timedelta
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
+# from django.contrib.auth.tokens import default_token_generator
+from ..utils.token_generator import email_verification_token_generator
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
@@ -13,7 +14,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from apps.common.response_builder import ResponseBuilder
 from apps.common.response_utils import StandardResponseCodes, StandardResponseMessages
 from ..models import DeviceRemembered, PasswordResetOTP, TwoFactorAuth, User
-from ..utils import generate_backup_codes, send_password_reset_otp, send_verification_email
+from ..utils.utils import generate_backup_codes, send_password_reset_otp, send_verification_email
 from .serializers import (
     ChangePasswordSerializer,
     PasswordResetConfirmOTPSerializer,
@@ -38,7 +39,7 @@ class AuthService:
             return ResponseBuilder.error('validation', serializer.errors)
         
         try:
-            # Save the user (
+            # Save the user 
             user = serializer.save()
             
             # Send verification email
@@ -72,9 +73,43 @@ class AuthService:
             return ResponseBuilder.error('registration_failed')
         
     @staticmethod
-    def verify_email(token, uid):
-        """Handle email verification logic"""
+    def verify_email(token=None, uid=None, resend=False, email=None, request=None):
+        """Handle email verification and resend logic"""
         
+        # Handle resend email verification
+        if resend:
+            if not email:
+                return ResponseBuilder.error('email_required')
+            
+            if not request:
+                return ResponseBuilder.error('request_required')
+            
+            try:
+                user = User.objects.get(email=email)
+                
+                # Check if email is already verified
+                if user.is_email_verified:
+                    return ResponseBuilder.error('email_already_verified')
+                
+                # Send verification email using your existing function
+                result = send_verification_email(user, request)
+                
+                if result:
+                    return ResponseBuilder.success('email_verification_resent', {
+                        'message': 'Verification email has been resent!',
+                        'email': email
+                    })
+                else:
+                    return ResponseBuilder.error('resend_failed')
+                
+            except User.DoesNotExist:
+                return ResponseBuilder.error('user_not_found')
+            except Exception as e:
+                # Log the error for debugging
+                # logger.error(f"Failed to resend verification email: {str(e)}")
+                return ResponseBuilder.error('resend_failed')
+        
+        # Handle email verification
         if not token or not uid:
             return ResponseBuilder.error('verification_invalid')
         
@@ -91,7 +126,7 @@ class AuthService:
                 })
             
             # Verify token
-            if default_token_generator.check_token(user, token):
+            if email_verification_token_generator.check_token(user, token):
                 # Mark email as verified
                 user.is_email_verified = True
                 user.save()
@@ -445,8 +480,32 @@ class AuthService:
             return ResponseBuilder.error('profile_completion_failed')
         
     @staticmethod
-    def send_password_reset_otp(data, request):
-        """Send password reset OTP"""
+    def send_password_reset_otp(data, request, resend=False):
+        """Send password reset OTP with resend functionality"""
+        
+        # Handle resend password reset OTP
+        if resend:
+            email = data.get('email')
+            if not email:
+                return ResponseBuilder.error('email_required')
+            
+            if not request:
+                return ResponseBuilder.error('request_required')
+            
+            try:
+                user = User.objects.get(email=email)
+                
+                # Send OTP
+                if send_password_reset_otp(user, request):
+                    return ResponseBuilder.success('password_reset_otp_resent', {'email': email})
+                else:
+                    return ResponseBuilder.error('password_reset_otp_resend_failed')
+                    
+            except User.DoesNotExist:
+                # Return success for security (don't reveal if email exists)
+                return ResponseBuilder.success('password_reset_otp_resent', {'email': email})
+        
+        # Handle regular password reset OTP request
         serializer = PasswordResetOTPSerializer(data=data)
         
         if not serializer.is_valid():
