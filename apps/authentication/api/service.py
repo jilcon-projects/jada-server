@@ -120,7 +120,6 @@ class AuthService:
                 user_id = force_str(decoded_uid)
                 user_id_int = int(user_id)
                 
-                # Ensure positive user ID
                 if user_id_int <= 0:
                     return ResponseBuilder.error('verification_link_invalid')
                     
@@ -135,12 +134,10 @@ class AuthService:
                 print(f"User not found with ID: {user_id_int}")
                 return ResponseBuilder.error('verification_link_invalid')
             
-            # ALWAYS verify the token first, regardless of current verification status
             if not email_verification_token_generator.check_token(user, token):
                 print(f"Invalid token for user {user.id}")
                 return ResponseBuilder.error('verification_token_invalid')
             
-            # Token is valid - now check verification status
             if user.is_email_verified:
                 return ResponseBuilder.success('email_verification', {
                     'email_verified': True,
