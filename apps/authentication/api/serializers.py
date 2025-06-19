@@ -219,7 +219,6 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
         help_text="Email address to resend verification to"
     )
 
-
 class TwoFactorSetupSerializer(serializers.Serializer):
     """Serializer for 2FA setup endpoint"""
     pass  
