@@ -29,7 +29,7 @@ def send_verification_email(user, request):
         # verification_url = f"{protocol}://{domain}/api/auth/verify-email/?token={token}&uid={uid}"
         # Get frontend URL from environment or use request domain
         frontend_domain = config('FRONTEND_URL', default=f"{protocol}://{domain}")
-        verification_url = f"{frontend_domain}/api/auth/verify-email?token={token}&uid={uid}"
+        verification_url = f"{frontend_domain}/auth/verify-email?token={token}&uid={uid}"
         
         # Email content
         html_content = f"""
