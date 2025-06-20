@@ -24,13 +24,13 @@ DATABASES = {
     }
 }
 
+
 # CORS settings - restrictive for production
 CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:8000',
-    cast=lambda v: [s.strip() for s in v.split(',')]
-)
+CORS_ALLOWED_ORIGINS = [
+    'https://buildestimate.ai',
+    'http://localhost:8000'
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
